@@ -94,11 +94,36 @@ class OrderProvider extends ChangeNotifier {
     try {
       final data = await ApiService.get('/api/pedidos');
       final List<dynamic> lista = data is List ? data : [];
-      _pedidos = lista
+      final filtrados = lista
           .map((j) => _fromJson(Map<String, dynamic>.from(j)))
           .where((p) =>
               p.usuarioId == userId.toString() || p.usuarioId == '0')
           .toList();
+
+      // Sort oldest-first to assign sequential per-client numbers
+      filtrados.sort((a, b) => a.fechaCreacion.compareTo(b.fechaCreacion));
+
+      // Assign sequential numbers (1, 2, 3...) then reverse for newest-first display
+      _pedidos = filtrados.asMap().entries.map((e) {
+        final p = e.value;
+        return Pedido(
+          id: (e.key + 1).toString(),
+          usuarioId: p.usuarioId,
+          items: p.items,
+          subtotal: p.subtotal,
+          envio: p.envio,
+          total: p.total,
+          montoTotal: p.montoTotal,
+          estado: p.estado,
+          metodoPago: p.metodoPago,
+          fechaCreacion: p.fechaCreacion,
+          fechaEntrega: p.fechaEntrega,
+          direccionEnvio: p.direccionEnvio,
+          numeroSeguimiento: p.numeroSeguimiento,
+          nombreCliente: p.nombreCliente,
+          emailCliente: p.emailCliente,
+        );
+      }).toList().reversed.toList();
     } catch (e) {
       _error = 'No se pudieron cargar los pedidos';
     } finally {
@@ -155,12 +180,12 @@ class OrderProvider extends ChangeNotifier {
       };
 
       final res = await ApiService.post('/api/pedidos', body);
-      final pedidoId =
-          (res['pedidoId'] ?? res['PedidoID'] ?? 0).toString();
+      final numeroPedidoCliente =
+          (res['numeroPedidoCliente'] ?? res['pedidoId'] ?? res['PedidoID'] ?? 0).toString();
       final total = _toDouble(res['total'] ?? res['Total'] ?? 0);
 
       final pedido = Pedido(
-        id: pedidoId,
+        id: numeroPedidoCliente,
         usuarioId: '0',
         items: items,
         subtotal: total,

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/services/auth_service.dart';
@@ -147,12 +148,14 @@ class _EditProfilePageState extends State<EditProfilePage> {
               ),
             ),
             const SizedBox(height: 20),
-            _buildTextField('Nombre completo', _nameCtrl),
+            _buildTextField('Nombre completo', _nameCtrl,
+                inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]'))]),
             const SizedBox(height: 12),
             _buildTextField('Correo electrónico', _emailCtrl, readOnly: true),
             const SizedBox(height: 12),
             _buildTextField('Teléfono', _phoneCtrl,
-                keyboardType: TextInputType.phone),
+                keyboardType: TextInputType.phone,
+                inputFormatters: [FilteringTextInputFormatter.digitsOnly]),
             const SizedBox(height: 12),
             _buildTextField('Biografía (opcional)', _bioCtrl, maxLines: 4),
             const SizedBox(height: 24),
@@ -186,6 +189,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
     String label,
     TextEditingController controller, {
     TextInputType keyboardType = TextInputType.text,
+    List<TextInputFormatter>? inputFormatters,
     int maxLines = 1,
     bool readOnly = false,
   }) {
@@ -198,6 +202,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
         TextFormField(
           controller: controller,
           keyboardType: keyboardType,
+          inputFormatters: inputFormatters,
           maxLines: maxLines,
           readOnly: readOnly,
           decoration: InputDecoration(

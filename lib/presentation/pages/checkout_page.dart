@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../../core/themes/colors.dart';
 import '../providers/providers.dart';
@@ -308,6 +309,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
               controller: _cardNumberController,
               keyboardType: TextInputType.number,
               maxLength: 16,
+              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
               decoration: InputDecoration(
                 labelText: 'Número de Tarjeta',
                 hintText: '0000 0000 0000 0000',
@@ -324,6 +326,8 @@ class _CheckoutPageState extends State<CheckoutPage> {
             // Nombre en Tarjeta
             TextField(
               controller: _cardNameController,
+              textCapitalization: TextCapitalization.characters,
+              inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]'))],
               decoration: InputDecoration(
                 labelText: 'Nombre en la Tarjeta',
                 prefixIcon: const Icon(Icons.person, color: AppColors.primary),
@@ -362,6 +366,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                     keyboardType: TextInputType.number,
                     maxLength: 3,
                     obscureText: true,
+                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                     decoration: InputDecoration(
                       labelText: 'CVV',
                       hintText: '123',

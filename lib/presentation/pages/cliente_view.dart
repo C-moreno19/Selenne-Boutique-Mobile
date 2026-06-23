@@ -40,6 +40,7 @@ class _ClienteViewState extends State<ClienteView>
   bool _perfilGuardando = false;
   bool _passGuardando = false;
   bool _perfilInicializado = false;
+  bool _searchVisible = false;
 
   String _formatCOP(double valor) {
     final partes = valor.toStringAsFixed(0).replaceAllMapped(
@@ -92,143 +93,106 @@ class _ClienteViewState extends State<ClienteView>
   PreferredSizeWidget _buildAppBar() {
     final isMobile = Responsive.isMobile(context);
 
-    return PreferredSize(
-      preferredSize: Size.fromHeight(isMobile ? 130 : kToolbarHeight + 60),
-      child: Container(
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          boxShadow: [
-            BoxShadow(color: Color(0x12000000), blurRadius: 8, offset: Offset(0, 2)),
-          ],
-        ),
-        child: SafeArea(
-          child: Column(
-            children: [
-              // Franja de marca rosada
-              Container(
-                height: 46,
-                padding: EdgeInsets.symmetric(
-                    horizontal: Responsive.getHorizontalPadding(context)),
-                decoration: const BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [Color(0xFFFF6FC8), Color(0xFFE91E8C), Color(0xFFA3145F)],
-                    begin: Alignment.centerLeft,
-                    end: Alignment.centerRight,
-                  ),
-                ),
-                child: Row(
-                  children: [
-                    // Logo pequeño
-                    Container(
-                      width: 30,
-                      height: 30,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: Colors.white.withValues(alpha: 0.2),
-                      ),
-                      padding: const EdgeInsets.all(4),
-                      child: Image.asset('assets/icons/logo_selenne.png',
-                          fit: BoxFit.contain),
-                    ),
-                    const SizedBox(width: 10),
-                    Text(
-                      'Selenne Boutique',
-                      style: GoogleFonts.playfairDisplay(
-                        fontSize: 17,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                        fontStyle: FontStyle.italic,
-                      ),
-                    ),
-                    const Spacer(),
-                    // Icono campana (mobile)
-                    if (isMobile)
-                      Consumer<NotificationProvider>(
-                        builder: (context, notif, _) => Stack(
-                          children: [
-                            IconButton(
-                              icon: const Icon(Icons.notifications_outlined,
-                                  color: Colors.white),
-                              onPressed: () => Navigator.push(context,
-                                  MaterialPageRoute(
-                                      builder: (_) => const NotificationsPage())),
-                            ),
-                            if (notif.notificacionesNoLeidas > 0)
-                              Positioned(
-                                top: 4,
-                                right: 4,
-                                child: Container(
-                                  width: 16,
-                                  height: 16,
-                                  decoration: const BoxDecoration(
-                                      color: Color(0xFF1A1A1A),
-                                      shape: BoxShape.circle),
-                                  child: Center(
-                                    child: Text('${notif.notificacionesNoLeidas}',
-                                        style: const TextStyle(
-                                            color: Colors.white,
-                                            fontSize: 9,
-                                            fontWeight: FontWeight.bold)),
-                                  ),
-                                ),
-                              ),
-                          ],
-                        ),
-                      ),
-                    // Icono carrito (solo desktop)
-                    if (!isMobile)
-                      Consumer<CarritoProvider>(
-                        builder: (context, carrito, _) => Stack(
-                          children: [
-                            IconButton(
-                              icon: const Icon(Icons.shopping_bag_outlined,
-                                  color: Colors.white),
-                              onPressed: _mostrarCarrito,
-                            ),
-                            if (carrito.itemCount > 0)
-                              Positioned(
-                                top: 4,
-                                right: 4,
-                                child: Container(
-                                  width: 16,
-                                  height: 16,
-                                  decoration: const BoxDecoration(
-                                      color: Color(0xFF1A1A1A),
-                                      shape: BoxShape.circle),
-                                  child: Center(
-                                    child: Text('${carrito.itemCount}',
-                                        style: const TextStyle(
-                                            color: Colors.white,
-                                            fontSize: 9,
-                                            fontWeight: FontWeight.bold)),
-                                  ),
-                                ),
-                              ),
-                          ],
-                        ),
-                      ),
-                    if (!isMobile)
-                      IconButton(
-                        icon: const Icon(Icons.person_outline,
-                            color: Colors.white),
-                        onPressed: () =>
-                            setState(() => _vistaActual = 'perfil'),
-                      ),
-                  ],
-                ),
-              ),
-              // Barra de búsqueda
-              Padding(
-                padding: EdgeInsets.symmetric(
-                  horizontal: Responsive.getHorizontalPadding(context),
-                  vertical: 10,
-                ),
-                child: _buildSearchBar(),
-              ),
-            ],
+    return AppBar(
+      backgroundColor: Colors.white,
+      elevation: 0,
+      scrolledUnderElevation: 0.5,
+      shadowColor: const Color(0x14000000),
+      titleSpacing: 16,
+      title: Row(
+        children: [
+          SizedBox(
+            width: 26,
+            height: 26,
+            child: Image.asset('assets/icons/logo_selenne.png', fit: BoxFit.contain),
           ),
-        ),
+          const SizedBox(width: 8),
+          Text(
+            'Selenne Boutique',
+            style: GoogleFonts.playfairDisplay(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: const Color(0xFF1A1A1A),
+              fontStyle: FontStyle.italic,
+            ),
+          ),
+        ],
       ),
+      actions: [
+        // Buscar
+        IconButton(
+          icon: Icon(
+            _searchVisible ? Icons.search_off_outlined : Icons.search_outlined,
+            color: const Color(0xFF1A1A1A),
+          ),
+          onPressed: () {
+            setState(() {
+              _searchVisible = !_searchVisible;
+              if (!_searchVisible) {
+                _searchController.clear();
+                context.read<TiendaProvider>().setBusqueda('');
+              }
+            });
+          },
+        ),
+        // Campana (mobile)
+        if (isMobile)
+          Consumer<NotificationProvider>(
+            builder: (context, notif, _) => Stack(
+              clipBehavior: Clip.none,
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.notifications_outlined, color: Color(0xFF1A1A1A)),
+                  onPressed: () => Navigator.push(context,
+                      MaterialPageRoute(builder: (_) => const NotificationsPage())),
+                ),
+                if (notif.notificacionesNoLeidas > 0)
+                  Positioned(
+                    top: 6, right: 6,
+                    child: Container(
+                      width: 15, height: 15,
+                      decoration: const BoxDecoration(color: AppColors.primary, shape: BoxShape.circle),
+                      child: Center(
+                        child: Text('${notif.notificacionesNoLeidas}',
+                            style: const TextStyle(color: Colors.white, fontSize: 8, fontWeight: FontWeight.bold)),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        // Carrito (desktop)
+        if (!isMobile)
+          Consumer<CarritoProvider>(
+            builder: (context, carrito, _) => Stack(
+              clipBehavior: Clip.none,
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.shopping_bag_outlined, color: Color(0xFF1A1A1A)),
+                  onPressed: _mostrarCarrito,
+                ),
+                if (carrito.itemCount > 0)
+                  Positioned(
+                    top: 6, right: 6,
+                    child: Container(
+                      width: 15, height: 15,
+                      decoration: const BoxDecoration(color: AppColors.primary, shape: BoxShape.circle),
+                      child: Center(
+                        child: Text('${carrito.itemCount}',
+                            style: const TextStyle(color: Colors.white, fontSize: 8, fontWeight: FontWeight.bold)),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        if (!isMobile)
+          IconButton(
+            icon: const Icon(Icons.person_outline, color: Color(0xFF1A1A1A)),
+            onPressed: () => setState(() => _vistaActual = 'perfil'),
+          ),
+        const SizedBox(width: 4),
+      ],
     );
   }
 
@@ -281,12 +245,19 @@ class _ClienteViewState extends State<ClienteView>
     return Consumer<TiendaProvider>(
       builder: (context, tiendaProvider, _) {
         return RefreshIndicator(
-          color: const Color(0xFFE91E8C),
+          color: AppColors.primary,
           onRefresh: () => tiendaProvider.cargarProductos(),
           child: SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
           child: Column(
             children: [
+              // Barra de búsqueda colapsable
+              if (_searchVisible)
+                Container(
+                  color: Colors.white,
+                  padding: const EdgeInsets.fromLTRB(16, 8, 16, 10),
+                  child: _buildSearchBar(),
+                ),
               // Banner principal estilo colección
               _buildHeroBanner(),
               const SizedBox(height: 12),
@@ -322,15 +293,10 @@ class _ClienteViewState extends State<ClienteView>
                               padding: const EdgeInsets.symmetric(
                                   horizontal: 14, vertical: 8),
                               decoration: BoxDecoration(
-                                gradient: hayFiltros
-                                    ? const LinearGradient(
-                                        colors: [Color(0xFFFF6FC8), Color(0xFFE91E8C)],
-                                      )
-                                    : null,
-                                color: hayFiltros ? null : Colors.white,
+                                color: hayFiltros ? AppColors.primary : Colors.white,
                                 borderRadius: BorderRadius.circular(20),
                                 border: Border.all(
-                                  color: const Color(0xFFE91E8C),
+                                  color: AppColors.primary,
                                   width: hayFiltros ? 0 : 1.5,
                                 ),
                                 boxShadow: [
@@ -346,18 +312,14 @@ class _ClienteViewState extends State<ClienteView>
                                 children: [
                                   Icon(Icons.tune_rounded,
                                       size: 16,
-                                      color: hayFiltros
-                                          ? Colors.white
-                                          : const Color(0xFFE91E8C)),
+                                      color: hayFiltros ? Colors.white : AppColors.primary),
                                   const SizedBox(width: 6),
                                   Text(
                                     hayFiltros ? 'Filtros activos' : 'Filtrar',
                                     style: TextStyle(
                                       fontSize: 12,
                                       fontWeight: FontWeight.w600,
-                                      color: hayFiltros
-                                          ? Colors.white
-                                          : const Color(0xFFE91E8C),
+                                      color: hayFiltros ? Colors.white : AppColors.primary,
                                     ),
                                   ),
                                 ],
@@ -408,19 +370,9 @@ class _ClienteViewState extends State<ClienteView>
       width: double.infinity,
       margin: const EdgeInsets.fromLTRB(16, 12, 16, 4),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(20),
-        gradient: const LinearGradient(
-          colors: [Color(0xFFFF6FC8), Color(0xFFE91E8C), Color(0xFFA3145F)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: const Color(0xFFE91E8C).withValues(alpha: 0.3),
-            blurRadius: 16,
-            offset: const Offset(0, 6),
-          ),
-        ],
+        color: const Color(0xFFF8F4F2),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFFEDE8E5)),
       ),
       padding: const EdgeInsets.fromLTRB(22, 22, 22, 22),
       child: Row(
@@ -429,81 +381,55 @@ class _ClienteViewState extends State<ClienteView>
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.2),
-                    borderRadius: BorderRadius.circular(20),
+                const Text(
+                  'NUEVA COLECCIÓN',
+                  style: TextStyle(
+                    fontSize: 10,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.primary,
+                    letterSpacing: 1.5,
                   ),
-                  child: const Text('Nueva Colección',
-                      style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 11,
-                          fontWeight: FontWeight.w600)),
                 ),
-                const SizedBox(height: 10),
+                const SizedBox(height: 8),
                 Text(
                   'Moda\nFemenina',
                   style: GoogleFonts.playfairDisplay(
-                    fontSize: 30,
+                    fontSize: 28,
                     fontWeight: FontWeight.bold,
-                    color: Colors.white,
+                    color: const Color(0xFF1A1A1A),
                     height: 1.1,
                   ),
                 ),
                 const SizedBox(height: 8),
                 const Text(
                   'Elegancia y estilo para ti',
-                  style: TextStyle(
-                      color: Colors.white70,
-                      fontSize: 13),
+                  style: TextStyle(color: Color(0xFF888888), fontSize: 13),
                 ),
                 const SizedBox(height: 16),
                 Container(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 16, vertical: 8),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(20),
-                  ),
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  decoration: const BoxDecoration(color: Color(0xFF1A1A1A)),
                   child: const Text(
                     'Ver colección',
                     style: TextStyle(
-                        color: Color(0xFFE91E8C),
-                        fontWeight: FontWeight.w700,
-                        fontSize: 12),
+                      color: Colors.white,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 12,
+                    ),
                   ),
                 ),
               ],
             ),
           ),
-          const SizedBox(width: 12),
-          // Decoración derecha
-          Column(
-            children: [
-              Container(
-                width: 70,
-                height: 70,
-                decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.15),
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(Icons.diamond_outlined,
-                    color: Colors.white, size: 36),
-              ),
-              const SizedBox(height: 10),
-              Container(
-                width: 44,
-                height: 44,
-                decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.1),
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(Icons.local_offer_outlined,
-                    color: Colors.white70, size: 22),
-              ),
-            ],
+          const SizedBox(width: 16),
+          Container(
+            width: 68,
+            height: 68,
+            decoration: BoxDecoration(
+              color: AppColors.primary.withValues(alpha: 0.08),
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(Icons.diamond_outlined, color: AppColors.primary, size: 30),
           ),
         ],
       ),
@@ -679,13 +605,7 @@ class _ClienteViewState extends State<ClienteView>
             Container(
               width: double.infinity,
               padding: const EdgeInsets.fromLTRB(16, 20, 16, 16),
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [Color(0xFFFF6FC8), Color(0xFFE91E8C)],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-              ),
+              color: Colors.white,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -694,15 +614,13 @@ class _ClienteViewState extends State<ClienteView>
                     style: GoogleFonts.playfairDisplay(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
-                      color: Colors.white,
+                      color: const Color(0xFF1A1A1A),
                     ),
                   ),
                   const SizedBox(height: 4),
                   Text(
                     '${productosFav.length} producto${productosFav.length != 1 ? 's' : ''} guardados',
-                    style: TextStyle(
-                        color: Colors.white.withValues(alpha: 0.85),
-                        fontSize: 13),
+                    style: const TextStyle(color: Color(0xFF888888), fontSize: 13),
                   ),
                 ],
               ),
@@ -797,8 +715,7 @@ class _ClienteViewState extends State<ClienteView>
             borderSide: const BorderSide(color: Color(0xFFE0E0E0))),
         focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
-            borderSide:
-                const BorderSide(color: Color(0xFFE91E8C), width: 2)),
+            borderSide: const BorderSide(color: AppColors.primary, width: 2)),
       );
 
   Widget _buildPerfil() {
@@ -815,20 +732,13 @@ class _ClienteViewState extends State<ClienteView>
 
         return Column(
           children: [
-            // Tarjeta de usuario con degradado
+            // Tarjeta de usuario
             Container(
               width: double.infinity,
-              padding: const EdgeInsets.fromLTRB(20, 20, 20, 24),
+              padding: const EdgeInsets.fromLTRB(20, 20, 20, 20),
               decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    Color(0xFFFF6FC8),
-                    Color(0xFFE91E8C),
-                    Color(0xFFA3145F)
-                  ],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
+                color: Colors.white,
+                border: Border(bottom: BorderSide(color: Color(0xFFEEEEEE))),
               ),
               child: Row(
                 children: [
@@ -838,10 +748,8 @@ class _ClienteViewState extends State<ClienteView>
                     height: 60,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: Colors.white.withValues(alpha: 0.25),
-                      border: Border.all(
-                          color: Colors.white.withValues(alpha: 0.5),
-                          width: 2),
+                      color: const Color(0xFFF0F0F0),
+                      border: Border.all(color: const Color(0xFFE0E0E0)),
                     ),
                     child: Center(
                       child: Text(
@@ -851,7 +759,7 @@ class _ClienteViewState extends State<ClienteView>
                         style: GoogleFonts.playfairDisplay(
                           fontSize: 26,
                           fontWeight: FontWeight.bold,
-                          color: Colors.white,
+                          color: const Color(0xFF1A1A1A),
                         ),
                       ),
                     ),
@@ -866,31 +774,25 @@ class _ClienteViewState extends State<ClienteView>
                           style: GoogleFonts.playfairDisplay(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
-                            color: Colors.white,
+                            color: const Color(0xFF1A1A1A),
                           ),
                         ),
                         const SizedBox(height: 4),
                         Text(
                           usuario?.email ?? '',
-                          style: TextStyle(
-                              color: Colors.white.withValues(alpha: 0.85),
-                              fontSize: 13),
+                          style: const TextStyle(color: Color(0xFF888888), fontSize: 13),
                         ),
                         if (usuario?.ciudad != null &&
                             usuario!.ciudad!.isNotEmpty) ...[
                           const SizedBox(height: 4),
                           Row(
                             children: [
-                              Icon(Icons.location_on_outlined,
-                                  size: 13,
-                                  color: Colors.white.withValues(alpha: 0.7)),
+                              const Icon(Icons.location_on_outlined,
+                                  size: 13, color: Color(0xFF888888)),
                               const SizedBox(width: 3),
                               Text(
                                 usuario.ciudad!,
-                                style: TextStyle(
-                                    color:
-                                        Colors.white.withValues(alpha: 0.7),
-                                    fontSize: 12),
+                                style: const TextStyle(color: Color(0xFF888888), fontSize: 12),
                               ),
                             ],
                           ),
@@ -906,9 +808,9 @@ class _ClienteViewState extends State<ClienteView>
               color: Colors.white,
               child: TabBar(
                 controller: _perfilTabController,
-                indicatorColor: const Color(0xFFE91E8C),
+                indicatorColor: AppColors.primary,
                 indicatorWeight: 3,
-                labelColor: const Color(0xFFE91E8C),
+                labelColor: AppColors.primary,
                 unselectedLabelColor: const Color(0xFF888888),
                 labelStyle: const TextStyle(
                     fontWeight: FontWeight.w600, fontSize: 13),
@@ -1153,7 +1055,7 @@ class _ClienteViewState extends State<ClienteView>
                                   Icons.shopping_bag_outlined,
                                   'Mis Pedidos',
                                   'Ver historial de compras',
-                                  const Color(0xFFE91E8C),
+                                  AppColors.primary,
                                   () => Navigator.push(
                                         context,
                                         MaterialPageRoute(
@@ -1283,8 +1185,6 @@ class _ClienteViewState extends State<ClienteView>
   }
 
   Widget _buildBottomNav() {
-    const _pink = Color(0xFFE91E8C);
-
     int currentIndex = _vistaActual == 'tienda'
         ? 0
         : _vistaActual == 'favoritos'
@@ -1307,7 +1207,7 @@ class _ClienteViewState extends State<ClienteView>
       ),
       child: BottomNavigationBar(
         currentIndex: currentIndex,
-        selectedItemColor: _pink,
+        selectedItemColor: AppColors.primary,
         unselectedItemColor: const Color(0xFFAAAAAA),
         type: BottomNavigationBarType.fixed,
         backgroundColor: Colors.white,
@@ -1344,7 +1244,7 @@ class _ClienteViewState extends State<ClienteView>
                         width: 17,
                         height: 17,
                         decoration: const BoxDecoration(
-                            color: _pink, shape: BoxShape.circle),
+                            color: AppColors.primary, shape: BoxShape.circle),
                         child: Center(
                           child: Text(
                             '${notif.contadorNoLeidas > 9 ? '9+' : notif.contadorNoLeidas}',
@@ -1383,7 +1283,7 @@ class _ClienteViewState extends State<ClienteView>
                         width: 17,
                         height: 17,
                         decoration: const BoxDecoration(
-                            color: _pink, shape: BoxShape.circle),
+                            color: AppColors.primary, shape: BoxShape.circle),
                         child: Center(
                           child: Text(
                             '${carrito.itemCount}',
@@ -1446,29 +1346,21 @@ class _ClienteViewState extends State<ClienteView>
                   child: SafeArea(
                   child: Column(
                     children: [
-                      // Header con degradado
+                      // Header carrito
                       Container(
                         decoration: const BoxDecoration(
-                          gradient: LinearGradient(
-                            colors: [
-                              Color(0xFFFF6FC8),
-                              Color(0xFFE91E8C),
-                              Color(0xFFA3145F)
-                            ],
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                          ),
-                          borderRadius: BorderRadius.vertical(
-                              top: Radius.circular(24)),
+                          color: Colors.white,
+                          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+                          border: Border(bottom: BorderSide(color: Color(0xFFEEEEEE))),
                         ),
-                        padding: const EdgeInsets.fromLTRB(20, 14, 20, 18),
+                        padding: const EdgeInsets.fromLTRB(20, 12, 20, 16),
                         child: Column(
                           children: [
                             Center(
                               child: Container(
                                 width: 40, height: 4,
                                 decoration: BoxDecoration(
-                                  color: Colors.white.withValues(alpha: 0.5),
+                                  color: const Color(0xFFDDDDDD),
                                   borderRadius: BorderRadius.circular(2),
                                 ),
                               ),
@@ -1481,7 +1373,7 @@ class _ClienteViewState extends State<ClienteView>
                                   style: GoogleFonts.playfairDisplay(
                                     fontSize: 22,
                                     fontWeight: FontWeight.bold,
-                                    color: Colors.white,
+                                    color: const Color(0xFF1A1A1A),
                                   ),
                                 ),
                                 if (carrito.itemCount > 0) ...[
@@ -1490,14 +1382,13 @@ class _ClienteViewState extends State<ClienteView>
                                     padding: const EdgeInsets.symmetric(
                                         horizontal: 8, vertical: 3),
                                     decoration: BoxDecoration(
-                                      color:
-                                          Colors.white.withValues(alpha: 0.25),
+                                      color: const Color(0xFFF0F0F0),
                                       borderRadius: BorderRadius.circular(12),
                                     ),
                                     child: Text(
                                       '${carrito.itemCount} ítem${carrito.itemCount != 1 ? 's' : ''}',
                                       style: const TextStyle(
-                                          color: Colors.white,
+                                          color: Color(0xFF1A1A1A),
                                           fontSize: 12,
                                           fontWeight: FontWeight.w600),
                                     ),

@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
@@ -7,9 +7,9 @@ import '../providers/notification_provider.dart';
 import '../providers/order_provider.dart';
 import '../routes/app_routes.dart';
 
-const _pink = Color(0xFFE91E8C);
-const _darkPink = Color(0xFFA3145F);
-const _lightPink = Color(0xFFFF6FC8);
+const _pink = Color(0xFFD65391);
+const _darkPink = Color(0xFF9E3A6B);
+const _lightPink = Color(0xFFE8A0C0);
 const _black = Color(0xFF1A1A1A);
 const _grey = Color(0xFF666666);
 const _border = Color(0xFFE0E0E0);

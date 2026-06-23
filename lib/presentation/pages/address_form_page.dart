@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import '../../core/constants/app_colors.dart';
 
 class AddressFormPage extends StatefulWidget {
@@ -89,12 +90,14 @@ class _AddressFormPageState extends State<AddressFormPage> {
             children: [
               _buildField('Nombre completo',
                   controller: _fullNameCtrl,
+                  inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]'))],
                   validator: (v) =>
                       v == null || v.trim().isEmpty ? 'Requerido' : null),
               const SizedBox(height: 12),
               _buildField('Teléfono',
                   controller: _phoneCtrl,
                   keyboardType: TextInputType.phone,
+                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                   validator: (v) =>
                       v == null || v.trim().isEmpty ? 'Requerido' : null),
               const SizedBox(height: 12),
@@ -105,13 +108,18 @@ class _AddressFormPageState extends State<AddressFormPage> {
               const SizedBox(height: 12),
               _buildField('Ciudad',
                   controller: _cityCtrl,
+                  inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]'))],
                   validator: (v) =>
                       v == null || v.trim().isEmpty ? 'Requerido' : null),
               const SizedBox(height: 12),
-              _buildField('Departamento', controller: _departmentCtrl),
+              _buildField('Departamento',
+                  controller: _departmentCtrl,
+                  inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]'))]),
               const SizedBox(height: 12),
               _buildField('Código Postal',
-                  controller: _postalCtrl, keyboardType: TextInputType.number),
+                  controller: _postalCtrl,
+                  keyboardType: TextInputType.number,
+                  inputFormatters: [FilteringTextInputFormatter.digitsOnly]),
               const SizedBox(height: 12),
               _buildField('Nombre de la dirección (opcional)',
                   controller: _labelCtrl),
@@ -141,6 +149,7 @@ class _AddressFormPageState extends State<AddressFormPage> {
   Widget _buildField(String label,
       {required TextEditingController controller,
       TextInputType? keyboardType,
+      List<TextInputFormatter>? inputFormatters,
       String? Function(String?)? validator}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -151,6 +160,7 @@ class _AddressFormPageState extends State<AddressFormPage> {
         TextFormField(
           controller: controller,
           keyboardType: keyboardType,
+          inputFormatters: inputFormatters,
           validator: validator,
           decoration: InputDecoration(
             filled: true,

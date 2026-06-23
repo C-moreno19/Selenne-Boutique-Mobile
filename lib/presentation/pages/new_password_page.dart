@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
@@ -20,9 +20,9 @@ class _NewPasswordPageState extends State<NewPasswordPage> {
   bool _obscureConfirm = true;
   bool _isLoading = false;
 
-  static const _pink = Color(0xFFE91E8C);
-  static const _darkPink = Color(0xFFA3145F);
-  static const _lightPink = Color(0xFFFF6FC8);
+  static const _pink = Color(0xFFD65391);
+  static const _darkPink = Color(0xFF9E3A6B);
+  static const _lightPink = Color(0xFFE8A0C0);
   static const _black = Color(0xFF1A1A1A);
   static const _grey = Color(0xFF666666);
   static const _border = Color(0xFFE0E0E0);
@@ -126,7 +126,7 @@ class _NewPasswordPageState extends State<NewPasswordPage> {
                           gradient: const LinearGradient(
                             begin: Alignment.topLeft,
                             end: Alignment.bottomRight,
-                            colors: [Color(0xFFFFD6EF), Color(0xFFE91E8C)],
+                            colors: [Color(0xFFFFD6EF), Color(0xFFD65391)],
                           ),
                           boxShadow: [
                             BoxShadow(

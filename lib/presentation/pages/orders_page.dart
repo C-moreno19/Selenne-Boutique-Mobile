@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../providers/order_provider.dart';
@@ -6,9 +6,9 @@ import '../providers/order_provider.dart';
 class OrdersPage extends StatelessWidget {
   const OrdersPage({Key? key}) : super(key: key);
 
-  static const _pink = Color(0xFFE91E8C);
-  static const _darkPink = Color(0xFFA3145F);
-  static const _lightPink = Color(0xFFFF6FC8);
+  static const _pink = Color(0xFFD65391);
+  static const _darkPink = Color(0xFF9E3A6B);
+  static const _lightPink = Color(0xFFE8A0C0);
   static const _black = Color(0xFF1A1A1A);
 
   String _cop(double v) =>

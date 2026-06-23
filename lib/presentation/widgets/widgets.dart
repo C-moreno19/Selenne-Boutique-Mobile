@@ -3,7 +3,6 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../../core/models/models.dart';
 import '../../core/themes/colors.dart';
-import '../../core/utils/responsive.dart';
 import '../pages/checkout_modal_content.dart';
 import '../providers/providers.dart';
 
@@ -226,7 +225,7 @@ class DetalleProductoModal extends StatefulWidget {
 }
 
 class _DetalleProductoModalState extends State<DetalleProductoModal> {
-  static const _pink = Color(0xFFE91E8C);
+  static const _pink = AppColors.primary;
   static const _black = Color(0xFF1A1A1A);
 
   late PageController _pageController;
@@ -737,9 +736,7 @@ class FiltrosDrawer extends StatefulWidget {
 }
 
 class _FiltrosDrawerState extends State<FiltrosDrawer> {
-  static const _pink = Color(0xFFE91E8C);
-  static const _darkPink = Color(0xFFA3145F);
-  static const _lightPink = Color(0xFFFF6FC8);
+  static const _pink = AppColors.primary;
   static const _black = Color(0xFF1A1A1A);
 
   String _cop(double v) =>
@@ -770,18 +767,14 @@ class _FiltrosDrawerState extends State<FiltrosDrawer> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              // Header degradado
+              // Header filtros
               Container(
                 decoration: const BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [_lightPink, _pink, _darkPink],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                  borderRadius:
-                      BorderRadius.vertical(top: Radius.circular(24)),
+                  color: Colors.white,
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+                  border: Border(bottom: BorderSide(color: Color(0xFFEEEEEE))),
                 ),
-                padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
+                padding: const EdgeInsets.fromLTRB(20, 12, 20, 16),
                 child: Column(
                   children: [
                     // Handle
@@ -790,7 +783,7 @@ class _FiltrosDrawerState extends State<FiltrosDrawer> {
                         width: 40,
                         height: 4,
                         decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: 0.5),
+                          color: const Color(0xFFDDDDDD),
                           borderRadius: BorderRadius.circular(2),
                         ),
                       ),
@@ -803,7 +796,7 @@ class _FiltrosDrawerState extends State<FiltrosDrawer> {
                           style: GoogleFonts.playfairDisplay(
                             fontSize: 24,
                             fontWeight: FontWeight.bold,
-                            color: Colors.white,
+                            color: const Color(0xFF1A1A1A),
                           ),
                         ),
                         if (totalActivos > 0) ...[
@@ -812,7 +805,7 @@ class _FiltrosDrawerState extends State<FiltrosDrawer> {
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 8, vertical: 3),
                             decoration: BoxDecoration(
-                              color: Colors.white,
+                              color: _pink.withValues(alpha: 0.1),
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: Text(
@@ -834,16 +827,13 @@ class _FiltrosDrawerState extends State<FiltrosDrawer> {
                               padding: const EdgeInsets.symmetric(
                                   horizontal: 12, vertical: 6),
                               decoration: BoxDecoration(
-                                color: Colors.white.withValues(alpha: 0.2),
+                                color: const Color(0xFFF0F0F0),
                                 borderRadius: BorderRadius.circular(20),
-                                border: Border.all(
-                                    color:
-                                        Colors.white.withValues(alpha: 0.4)),
                               ),
                               child: const Text(
                                 'Limpiar',
                                 style: TextStyle(
-                                    color: Colors.white,
+                                    color: Color(0xFF666666),
                                     fontSize: 12,
                                     fontWeight: FontWeight.w600),
                               ),

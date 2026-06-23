@@ -1,13 +1,13 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import '../../core/models/models.dart';
 import '../routes/app_routes.dart';
 import '../../core/services/cart_service.dart';
 import '../../core/utils/adaptive_image.dart';
 import 'checkout_modal_content.dart';
 
-const _pink = Color(0xFFE91E8C);
-const _darkPink = Color(0xFFA3145F);
-const _lightPink = Color(0xFFFF6FC8);
+const _pink = Color(0xFFD65391);
+const _darkPink = Color(0xFF9E3A6B);
+const _lightPink = Color(0xFFE8A0C0);
 const _black = Color(0xFF1A1A1A);
 const _grey = Color(0xFF888888);
 
