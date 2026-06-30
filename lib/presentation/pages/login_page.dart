@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import '../../core/utils/snackbar.dart';
 import '../providers/auth_provider.dart';
 import '../providers/providers.dart';
 import '../providers/notification_provider.dart';
@@ -10,7 +11,7 @@ import 'register_page.dart';
 import 'forgot_password_page.dart';
 
 class LoginPage extends StatefulWidget {
-  const LoginPage({Key? key}) : super(key: key);
+  const LoginPage({super.key});
 
   @override
   State<LoginPage> createState() => _LoginPageState();
@@ -375,9 +376,7 @@ class _LoginPageState extends State<LoginPage> {
     final auth = context.read<AuthProvider>();
     final nav = Navigator.of(context);
     if (_emailController.text.trim().isEmpty || _passwordController.text.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Ingresa tu email y contraseña'), backgroundColor: Colors.red),
-      );
+      AppSnackBar.show(context, 'Ingresa tu email y contraseña', type: SnackType.error);
       return;
     }
     setState(() => _isLoading = true);

@@ -1,6 +1,7 @@
 ﻿import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import '../../core/utils/snackbar.dart';
 import '../providers/auth_provider.dart';
 import 'password_changed_page.dart';
 
@@ -47,10 +48,7 @@ class _NewPasswordPageState extends State<NewPasswordPage> {
         MaterialPageRoute(builder: (_) => const PasswordChangedPage()),
       );
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text(auth.error ?? 'Error al cambiar la contraseña'),
-        backgroundColor: Colors.red,
-      ));
+      AppSnackBar.show(context, auth.error ?? 'Error al cambiar la contraseña', type: SnackType.error);
     }
   }
 

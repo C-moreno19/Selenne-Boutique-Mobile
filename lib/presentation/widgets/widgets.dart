@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../../core/models/models.dart';
 import '../../core/themes/colors.dart';
+import '../../core/utils/snackbar.dart';
 import '../pages/checkout_modal_content.dart';
 import '../providers/providers.dart';
 
@@ -14,8 +15,8 @@ class ProductCard extends StatelessWidget {
   const ProductCard({
     required this.producto,
     required this.onTap,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   static String _copCard(double v) =>
       '\$${v.toStringAsFixed(0).replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (m) => '${m[1]}.')}';
@@ -34,7 +35,7 @@ class ProductCard extends StatelessWidget {
               borderRadius: BorderRadius.circular(12),
               boxShadow: [
                 BoxShadow(
-                  color: AppColors.shadow.withOpacity(0.1),
+                  color: AppColors.shadow.withValues(alpha: 0.1),
                   blurRadius: 8,
                   offset: const Offset(0, 2),
                 ),
@@ -67,8 +68,8 @@ class ProductCard extends StatelessWidget {
                         ),
                       ),
                     ),
-                    // Badge de descuento
-                    if (producto.hayDescuento)
+                    // Badge de descuento o sale
+                    if (producto.hayDescuento || producto.categoria == 'sale')
                       Positioned(
                         top: 8,
                         left: 8,
@@ -76,11 +77,15 @@ class ProductCard extends StatelessWidget {
                           padding: const EdgeInsets.symmetric(
                               horizontal: 8, vertical: 4),
                           decoration: BoxDecoration(
-                            color: AppColors.error,
+                            color: producto.hayDescuento
+                                ? AppColors.error
+                                : const Color(0xFFD65391),
                             borderRadius: BorderRadius.circular(6),
                           ),
                           child: Text(
-                            '-${producto.descuentoPorcentaje.toStringAsFixed(0)}%',
+                            producto.hayDescuento
+                                ? '-${producto.descuentoPorcentaje.toStringAsFixed(0)}%'
+                                : 'SALE',
                             style: const TextStyle(
                               color: Colors.white,
                               fontWeight: FontWeight.bold,
@@ -104,7 +109,7 @@ class ProductCard extends StatelessWidget {
                             shape: BoxShape.circle,
                             boxShadow: [
                               BoxShadow(
-                                color: AppColors.shadow.withOpacity(0.2),
+                                color: AppColors.shadow.withValues(alpha: 0.2),
                                 blurRadius: 4,
                               ),
                             ],
@@ -217,8 +222,7 @@ class ProductCard extends StatelessWidget {
 class DetalleProductoModal extends StatefulWidget {
   final Producto producto;
 
-  const DetalleProductoModal({required this.producto, Key? key})
-      : super(key: key);
+  const DetalleProductoModal({required this.producto, super.key});
 
   @override
   State<DetalleProductoModal> createState() => _DetalleProductoModalState();
@@ -252,7 +256,7 @@ class _DetalleProductoModalState extends State<DetalleProductoModal> {
   @override
   Widget build(BuildContext context) {
     final p = widget.producto;
-    final canAdd = _talla != null && _color != null;
+    final canAdd = (_talla != null || p.tallas.isEmpty) && (_color != null || p.colores.isEmpty);
 
     return Dialog(
       insetPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 32),
@@ -282,8 +286,8 @@ class _DetalleProductoModalState extends State<DetalleProductoModal> {
                   ),
                 ),
               ),
-              // Badge descuento
-              if (p.hayDescuento)
+              // Badge descuento o sale
+              if (p.hayDescuento || p.categoria == 'sale')
                 Positioned(
                   top: 12,
                   left: 12,
@@ -291,11 +295,15 @@ class _DetalleProductoModalState extends State<DetalleProductoModal> {
                     padding: const EdgeInsets.symmetric(
                         horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFC62828),
+                      color: p.hayDescuento
+                          ? const Color(0xFFC62828)
+                          : const Color(0xFFD65391),
                       borderRadius: BorderRadius.circular(6),
                     ),
                     child: Text(
-                      '-${p.descuentoPorcentaje.toStringAsFixed(0)}%',
+                      p.hayDescuento
+                          ? '-${p.descuentoPorcentaje.toStringAsFixed(0)}%'
+                          : 'SALE',
                       style: const TextStyle(
                           color: Colors.white,
                           fontSize: 11,
@@ -609,16 +617,57 @@ class _DetalleProductoModalState extends State<DetalleProductoModal> {
                           ? () {
                               context.read<CarritoProvider>().agregarAlCarrito(
                                     widget.producto,
-                                    _talla!,
-                                    _color!,
+                                    _talla ?? '',
+                                    _color ?? '',
                                     _cantidad,
                                   );
                               Navigator.pop(context);
-                              ScaffoldMessenger.of(context).showSnackBar(
+                              ScaffoldMessenger.of(context)
+                                ..hideCurrentSnackBar()
+                                ..showSnackBar(
                                 SnackBar(
-                                  content: Text(
-                                      '${widget.producto.nombre} agregado al carrito'),
-                                  backgroundColor: const Color(0xFF2E7D32),
+                                  content: Row(
+                                    children: [
+                                      Container(
+                                        width: 36,
+                                        height: 36,
+                                        decoration: BoxDecoration(
+                                          color: Colors.white.withValues(alpha: 0.15),
+                                          borderRadius: BorderRadius.circular(8),
+                                        ),
+                                        child: const Icon(Icons.check_rounded,
+                                            color: Colors.white, size: 20),
+                                      ),
+                                      const SizedBox(width: 12),
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            const Text('¡Agregado al carrito!',
+                                                style: TextStyle(
+                                                    color: Colors.white,
+                                                    fontWeight: FontWeight.w700,
+                                                    fontSize: 13)),
+                                            Text(widget.producto.nombre,
+                                                maxLines: 1,
+                                                overflow: TextOverflow.ellipsis,
+                                                style: TextStyle(
+                                                    color: Colors.white.withValues(alpha: 0.8),
+                                                    fontSize: 12)),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  backgroundColor: const Color(0xFFd65391),
+                                  behavior: SnackBarBehavior.floating,
+                                  shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(14)),
+                                  margin: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 14, vertical: 12),
+                                  elevation: 6,
                                   duration: const Duration(seconds: 2),
                                 ),
                               );
@@ -651,8 +700,8 @@ class _DetalleProductoModalState extends State<DetalleProductoModal> {
                               final item = CartItem(
                                 id: '${widget.producto.id}_direct',
                                 producto: widget.producto,
-                                talla: _talla!,
-                                color: _color!,
+                                talla: _talla ?? '',
+                                color: _color ?? '',
                                 cantidad: _cantidad,
                               );
                               showModalBottomSheet(
@@ -729,7 +778,7 @@ class _DetalleProductoModalState extends State<DetalleProductoModal> {
 
 /// Bottom sheet de filtros con diseño de marca
 class FiltrosDrawer extends StatefulWidget {
-  const FiltrosDrawer({Key? key}) : super(key: key);
+  const FiltrosDrawer({super.key});
 
   @override
   State<FiltrosDrawer> createState() => _FiltrosDrawerState();
@@ -1207,7 +1256,7 @@ class _FiltrosDrawerState extends State<FiltrosDrawer> {
 
 /// Vista del carrito
 class CarritoView extends StatelessWidget {
-  const CarritoView({Key? key}) : super(key: key);
+  const CarritoView({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -1444,9 +1493,7 @@ class CarritoView extends StatelessWidget {
                     onPressed: carritoProvider.items.isEmpty
                         ? null
                         : () {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('Ir a Checkout')),
-                            );
+                            AppSnackBar.show(context, 'Ir a Checkout', type: SnackType.info);
                           },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.primary,

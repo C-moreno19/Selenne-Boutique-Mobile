@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class Mensaje {
@@ -20,7 +20,7 @@ class Mensaje {
 }
 
 class MensajesPage extends StatefulWidget {
-  const MensajesPage({Key? key}) : super(key: key);
+  const MensajesPage({super.key});
 
   @override
   State<MensajesPage> createState() => _MensajesPageState();

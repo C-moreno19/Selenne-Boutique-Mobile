@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import '../../core/utils/snackbar.dart';
 import '../providers/auth_provider.dart';
 import '../providers/providers.dart';
 import '../providers/notification_provider.dart';
@@ -10,7 +11,7 @@ import 'cliente_view.dart';
 import 'login_page.dart';
 
 class RegisterPage extends StatefulWidget {
-  const RegisterPage({Key? key}) : super(key: key);
+  const RegisterPage({super.key});
 
   @override
   State<RegisterPage> createState() => _RegisterPageState();
@@ -456,29 +457,16 @@ class _RegisterPageState extends State<RegisterPage> {
         _documentoController.text.trim().isEmpty ||
         _passwordController.text.isEmpty ||
         _confirmPasswordController.text.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content: Text('Por favor completa todos los campos'),
-            backgroundColor: Colors.red),
-      );
+      AppSnackBar.show(context, 'Por favor completa todos los campos', type: SnackType.error);
       return;
     }
     final pass = _passwordController.text;
     if (!RegExp(r'^(?=(.*\d){2})(?=.*[^a-zA-Z0-9\s]).{9,20}$').hasMatch(pass)) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content: Text(
-                'La contraseña debe tener 9–20 caracteres, al menos 2 números y 1 carácter especial'),
-            backgroundColor: Colors.red),
-      );
+      AppSnackBar.show(context, 'La contraseña debe tener 9–20 caracteres, al menos 2 números y 1 carácter especial', type: SnackType.error);
       return;
     }
     if (pass != _confirmPasswordController.text) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content: Text('Las contraseñas no coinciden'),
-            backgroundColor: Colors.red),
-      );
+      AppSnackBar.show(context, 'Las contraseñas no coinciden', type: SnackType.error);
       return;
     }
     final fav = context.read<FavoritosProvider>();

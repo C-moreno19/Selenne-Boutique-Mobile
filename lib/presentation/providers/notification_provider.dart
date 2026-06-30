@@ -123,15 +123,21 @@ class NotificationProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Elimina una notificación de la lista local
-  void eliminarNotificacion(String notificacionId) {
+  /// Elimina una notificación local + backend
+  Future<void> eliminarNotificacion(String notificacionId) async {
     _notificaciones.removeWhere((n) => n.id == notificacionId);
     notifyListeners();
+    try {
+      await ApiService.delete('/api/notificaciones/$notificacionId');
+    } catch (_) {}
   }
 
-  /// Limpia todas las notificaciones locales
-  void limpiarTodas() {
+  /// Limpia todas las notificaciones local + backend
+  Future<void> limpiarTodas() async {
     _notificaciones.clear();
     notifyListeners();
+    try {
+      await ApiService.delete('/api/notificaciones');
+    } catch (_) {}
   }
 }

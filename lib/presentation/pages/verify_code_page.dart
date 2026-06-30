@@ -2,6 +2,7 @@
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'dart:async';
+import '../../core/utils/snackbar.dart';
 import '../providers/auth_provider.dart';
 import 'new_password_page.dart';
 
@@ -54,9 +55,7 @@ class _VerifyCodePageState extends State<VerifyCodePage> {
   void _continuar() {
     final token = _tokenController.text.trim();
     if (token.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Ingresa el código del correo')),
-      );
+      AppSnackBar.show(context, 'Ingresa el código del correo', type: SnackType.error);
       return;
     }
     Navigator.of(context).push(
@@ -70,9 +69,7 @@ class _VerifyCodePageState extends State<VerifyCodePage> {
     if (!mounted) return;
     setState(() => _isResending = false);
     _startTimer();
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Código reenviado a tu correo')),
-    );
+    AppSnackBar.show(context, 'Código reenviado a tu correo');
   }
 
   @override

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import '../../core/utils/snackbar.dart';
 import '../providers/auth_provider.dart';
 import 'verify_code_page.dart';
 
@@ -31,11 +32,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
     final email = _emailController.text.trim();
     if (email.isEmpty ||
         !RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(email)) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content: Text('Ingresa un correo válido'),
-            backgroundColor: Colors.red),
-      );
+      AppSnackBar.show(context, 'Ingresa un correo válido', type: SnackType.error);
       return;
     }
     final auth = context.read<AuthProvider>();
@@ -48,10 +45,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
         builder: (_) => VerifyCodePage(email: email),
       ));
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text(auth.error ?? 'Error al enviar el correo'),
-        backgroundColor: Colors.red,
-      ));
+      AppSnackBar.show(context, auth.error ?? 'Error al enviar el correo', type: SnackType.error);
     }
   }
 

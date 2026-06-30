@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../core/constants/app_colors.dart';
+import '../../core/utils/snackbar.dart';
 // ✅ FIX: Remover import no usado
 // import '../../core/services/auth_service.dart';
 import 'address_form_page.dart';
@@ -112,9 +113,7 @@ class _AddressesPageState extends State<AddressesPage> {
     if (res == true && mounted) {
       setState(() => _addresses.removeAt(index));
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Dirección eliminada')),
-        );
+        AppSnackBar.show(context, 'Dirección eliminada', type: SnackType.info);
       }
     }
   }

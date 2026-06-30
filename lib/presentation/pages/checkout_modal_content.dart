@@ -1,5 +1,6 @@
-﻿import 'dart:convert';
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import '../../core/utils/snackbar.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
@@ -9,6 +10,7 @@ import '../../core/models/models.dart';
 import '../../core/services/api_service.dart';
 import '../providers/providers.dart';
 import '../providers/auth_provider.dart';
+import '../providers/notification_provider.dart';
 import '../providers/order_provider.dart';
 
 const _pink = Color(0xFFD65391);
@@ -30,7 +32,7 @@ class CheckoutModalContent extends StatefulWidget {
   /// Cuando se pasa, el modal usa estos ítems en lugar del carrito global.
   final List<CartItem>? itemsDirectos;
 
-  const CheckoutModalContent({Key? key, this.itemsDirectos}) : super(key: key);
+  const CheckoutModalContent({super.key, this.itemsDirectos});
 
   @override
   State<CheckoutModalContent> createState() => _CheckoutModalContentState();
@@ -249,13 +251,11 @@ class _CheckoutModalContentState extends State<CheckoutModalContent> {
       if (pedido != null) {
         // Solo vaciar el carrito global cuando no es compra directa
         if (widget.itemsDirectos == null) carrito.limpiarCarrito();
-        final messenger = ScaffoldMessenger.of(context);
+        // Recargar notificaciones para mostrar la que genera el backend al crear el pedido
+        context.read<NotificationProvider>().cargarNotificaciones();
         Navigator.of(context).pop();
-        messenger.showSnackBar(SnackBar(
-          content: Text('¡Pedido #${pedido.id} creado exitosamente!'),
-          backgroundColor: Colors.green,
-          duration: const Duration(seconds: 4),
-        ));
+        AppSnackBar.show(context, 'Tu pedido fue registrado y está siendo procesado.',
+            title: '¡Pedido confirmado!', duration: const Duration(seconds: 4));
       } else {
         _showSnack(orders.error ?? 'Error al crear el pedido', error: true);
       }
@@ -268,10 +268,7 @@ class _CheckoutModalContentState extends State<CheckoutModalContent> {
   }
 
   void _showSnack(String msg, {required bool error}) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      content: Text(msg),
-      backgroundColor: error ? Colors.red : Colors.green,
-    ));
+    AppSnackBar.show(context, msg, type: error ? SnackType.error : SnackType.success);
   }
 
   @override
@@ -577,6 +574,7 @@ class _CheckoutModalContentState extends State<CheckoutModalContent> {
                       const SizedBox(height: 10),
                       TextFormField(
                         controller: _direccionCtrl,
+                        keyboardType: TextInputType.streetAddress,
                         decoration: _inputDeco('Dirección *', icon: Icons.home_outlined),
                         validator: (v) =>
                             v == null || v.trim().isEmpty ? 'Requerido' : null,
@@ -584,7 +582,7 @@ class _CheckoutModalContentState extends State<CheckoutModalContent> {
                       const SizedBox(height: 10),
                       TextFormField(
                         controller: _barrioCtrl,
-                        inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]'))],
+                        keyboardType: TextInputType.streetAddress,
                         decoration: _inputDeco('Barrio *', icon: Icons.location_on_outlined),
                         validator: (v) =>
                             v == null || v.trim().isEmpty ? 'Requerido' : null,

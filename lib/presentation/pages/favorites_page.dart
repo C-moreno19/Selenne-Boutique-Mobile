@@ -5,7 +5,7 @@ import '../routes/app_routes.dart';
 import '../../core/constants/app_colors.dart';
 
 class FavoritesPage extends StatefulWidget {
-  const FavoritesPage({Key? key}) : super(key: key);
+  const FavoritesPage({super.key});
 
   @override
   State<FavoritesPage> createState() => _FavoritesPageState();
