@@ -1,5 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import '../../core/utils/snackbar.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:file_picker/file_picker.dart';
@@ -8,11 +10,10 @@ import '../../core/models/models.dart';
 import '../../core/services/api_service.dart';
 import '../providers/providers.dart';
 import '../providers/auth_provider.dart';
+import '../providers/notification_provider.dart';
 import '../providers/order_provider.dart';
 
-const _pink = Color(0xFFE91E8C);
-const _darkPink = Color(0xFFA3145F);
-const _lightPink = Color(0xFFFF6FC8);
+const _pink = Color(0xFFD65391);
 const _black = Color(0xFF1A1A1A);
 const _grey = Color(0xFF666666);
 const _border = Color(0xFFE0E0E0);
@@ -31,7 +32,7 @@ class CheckoutModalContent extends StatefulWidget {
   /// Cuando se pasa, el modal usa estos ítems en lugar del carrito global.
   final List<CartItem>? itemsDirectos;
 
-  const CheckoutModalContent({Key? key, this.itemsDirectos}) : super(key: key);
+  const CheckoutModalContent({super.key, this.itemsDirectos});
 
   @override
   State<CheckoutModalContent> createState() => _CheckoutModalContentState();
@@ -53,7 +54,7 @@ class _CheckoutModalContentState extends State<CheckoutModalContent> {
 
   Map<String, String> _banco = {
     'banco': 'Bancolombia',
-    'numeroCuenta': '1234567890',
+    'numeroCuenta': '91292106179',
     'titular': 'Selenne Boutique',
     'tipoCuenta': 'Ahorros',
   };
@@ -166,7 +167,7 @@ class _CheckoutModalContentState extends State<CheckoutModalContent> {
         setState(() {
           _banco = {
             'banco': (d['banco'] ?? d['Banco'] ?? 'Bancolombia').toString(),
-            'numeroCuenta': (d['numeroCuenta'] ?? d['NumeroCuenta'] ?? '1234567890').toString(),
+            'numeroCuenta': (d['numeroCuenta'] ?? d['NumeroCuenta'] ?? '91292106179').toString(),
             'titular': (d['titular'] ?? d['Titular'] ?? 'Selenne Boutique').toString(),
             'tipoCuenta': (d['tipoCuenta'] ?? d['TipoCuenta'] ?? 'Ahorros').toString(),
           };
@@ -250,13 +251,11 @@ class _CheckoutModalContentState extends State<CheckoutModalContent> {
       if (pedido != null) {
         // Solo vaciar el carrito global cuando no es compra directa
         if (widget.itemsDirectos == null) carrito.limpiarCarrito();
-        final messenger = ScaffoldMessenger.of(context);
+        // Recargar notificaciones para mostrar la que genera el backend al crear el pedido
+        context.read<NotificationProvider>().cargarNotificaciones();
         Navigator.of(context).pop();
-        messenger.showSnackBar(SnackBar(
-          content: Text('¡Pedido #${pedido.id} creado exitosamente!'),
-          backgroundColor: Colors.green,
-          duration: const Duration(seconds: 4),
-        ));
+        AppSnackBar.show(context, 'Tu pedido fue registrado y está siendo procesado.',
+            title: '¡Pedido confirmado!', duration: const Duration(seconds: 4));
       } else {
         _showSnack(orders.error ?? 'Error al crear el pedido', error: true);
       }
@@ -269,10 +268,7 @@ class _CheckoutModalContentState extends State<CheckoutModalContent> {
   }
 
   void _showSnack(String msg, {required bool error}) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      content: Text(msg),
-      backgroundColor: error ? Colors.red : Colors.green,
-    ));
+    AppSnackBar.show(context, msg, type: error ? SnackType.error : SnackType.success);
   }
 
   @override
@@ -293,14 +289,11 @@ class _CheckoutModalContentState extends State<CheckoutModalContent> {
             // Header
             Container(
               decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [_lightPink, _pink, _darkPink],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
+                color: Colors.white,
                 borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+                border: Border(bottom: BorderSide(color: Color(0xFFEEEEEE))),
               ),
-              padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
+              padding: const EdgeInsets.fromLTRB(20, 12, 20, 16),
               child: Column(
                 children: [
                   // Handle
@@ -308,7 +301,7 @@ class _CheckoutModalContentState extends State<CheckoutModalContent> {
                     child: Container(
                       width: 40, height: 4,
                       decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.5),
+                        color: const Color(0xFFDDDDDD),
                         borderRadius: BorderRadius.circular(2),
                       ),
                     ),
@@ -317,21 +310,21 @@ class _CheckoutModalContentState extends State<CheckoutModalContent> {
                   Row(
                     children: [
                       const Icon(Icons.shopping_bag_outlined,
-                          color: Colors.white, size: 22),
+                          color: Color(0xFF1A1A1A), size: 22),
                       const SizedBox(width: 10),
                       Text(
                         'Finalizar Compra',
                         style: GoogleFonts.playfairDisplay(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
-                          color: Colors.white,
+                          color: const Color(0xFF1A1A1A),
                         ),
                       ),
                       const Spacer(),
                       Text(
                         _formatCOP(total),
                         style: const TextStyle(
-                          color: Colors.white,
+                          color: _pink,
                           fontWeight: FontWeight.bold,
                           fontSize: 16,
                         ),
@@ -549,6 +542,7 @@ class _CheckoutModalContentState extends State<CheckoutModalContent> {
                       TextFormField(
                         controller: _nombreCtrl,
                         textCapitalization: TextCapitalization.words,
+                        inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]'))],
                         decoration: _inputDeco('Nombre Completo *', icon: Icons.person_outline),
                         validator: (v) =>
                             v == null || v.trim().isEmpty ? 'Requerido' : null,
@@ -557,12 +551,14 @@ class _CheckoutModalContentState extends State<CheckoutModalContent> {
                       TextFormField(
                         controller: _documentoCtrl,
                         keyboardType: TextInputType.number,
+                        inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                         decoration: _inputDeco('Número de Documento (opcional)', icon: Icons.badge_outlined),
                       ),
                       const SizedBox(height: 10),
                       TextFormField(
                         controller: _telefonoCtrl,
                         keyboardType: TextInputType.phone,
+                        inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                         decoration: _inputDeco('Teléfono *', icon: Icons.phone_outlined),
                         validator: (v) =>
                             v == null || v.trim().isEmpty ? 'Requerido' : null,
@@ -578,6 +574,7 @@ class _CheckoutModalContentState extends State<CheckoutModalContent> {
                       const SizedBox(height: 10),
                       TextFormField(
                         controller: _direccionCtrl,
+                        keyboardType: TextInputType.streetAddress,
                         decoration: _inputDeco('Dirección *', icon: Icons.home_outlined),
                         validator: (v) =>
                             v == null || v.trim().isEmpty ? 'Requerido' : null,
@@ -585,6 +582,7 @@ class _CheckoutModalContentState extends State<CheckoutModalContent> {
                       const SizedBox(height: 10),
                       TextFormField(
                         controller: _barrioCtrl,
+                        keyboardType: TextInputType.streetAddress,
                         decoration: _inputDeco('Barrio *', icon: Icons.location_on_outlined),
                         validator: (v) =>
                             v == null || v.trim().isEmpty ? 'Requerido' : null,
@@ -777,6 +775,31 @@ class _CheckoutModalContentState extends State<CheckoutModalContent> {
           _bankRow('Titular', _banco['titular'] ?? ''),
           _bankRow('Monto a transferir', _formatCOP(total),
               valueColor: _pink, bold: true),
+          const SizedBox(height: 16),
+          // QR de transferencia
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(color: _border),
+            ),
+            child: Column(
+              children: [
+                Text(
+                  'Escanea para transferir',
+                  style: TextStyle(fontSize: 12, color: Colors.grey[500]),
+                ),
+                const SizedBox(height: 10),
+                Image.asset(
+                  'assets/images/qr-transferencia.png',
+                  width: 180,
+                  height: 180,
+                  fit: BoxFit.contain,
+                ),
+              ],
+            ),
+          ),
           const SizedBox(height: 14),
           // Subir comprobante
           GestureDetector(

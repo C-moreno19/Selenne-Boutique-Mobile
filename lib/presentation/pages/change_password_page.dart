@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../core/themes/colors.dart';
+import '../../core/utils/snackbar.dart';
 import '../providers/auth_provider.dart';
 
 class ChangePasswordPage extends StatefulWidget {
@@ -41,20 +42,10 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
     setState(() => _isLoading = false);
 
     if (exito) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Contraseña actualizada correctamente'),
-          backgroundColor: Colors.green,
-        ),
-      );
+      AppSnackBar.show(context, 'Contraseña actualizada correctamente');
       Navigator.pop(context);
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(auth.error ?? 'Error al cambiar la contraseña'),
-          backgroundColor: Colors.red,
-        ),
-      );
+      AppSnackBar.show(context, auth.error ?? 'Error al cambiar la contraseña', type: SnackType.error);
     }
   }
 

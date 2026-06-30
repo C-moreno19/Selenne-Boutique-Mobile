@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../core/themes/colors.dart';
+import '../../core/utils/snackbar.dart';
 import '../providers/auth_provider.dart';
 import '../providers/providers.dart';
 import '../providers/notification_provider.dart';
@@ -9,7 +10,7 @@ import 'login_page.dart';
 import 'change_password_page.dart';
 
 class SettingsPage extends StatelessWidget {
-  const SettingsPage({Key? key}) : super(key: key);
+  const SettingsPage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -29,8 +30,7 @@ class SettingsPage extends StatelessWidget {
             leading: const Icon(Icons.edit, color: AppColors.primary),
             title: const Text('Editar perfil'),
             onTap: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Editar perfil (pendiente)')));
+              AppSnackBar.show(context, 'Editar perfil (pendiente)', type: SnackType.info);
             },
           ),
           ListTile(

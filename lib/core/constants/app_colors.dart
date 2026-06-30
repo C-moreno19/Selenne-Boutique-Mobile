@@ -4,7 +4,7 @@ class AppColors {
   AppColors._();
   
   // Color principal
-  static const Color primary = Color(0xFFE91E8C); // Rosa magenta
+  static const Color primary = Color(0xFFD65391); // Rosa Selenne
   
   // Fondos
   static const Color background = Color(0xFFF5F5F5); // Gris claro

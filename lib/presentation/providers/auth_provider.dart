@@ -104,10 +104,16 @@ class AuthProvider extends ChangeNotifier {
       final token = data['token'] ?? data['accessToken'] ?? '';
       await ApiService.saveToken(token.toString());
 
-      // Mapear usuario
+      // Mapear usuario (el login ya incluye telefono, direccion, ciudad, documento)
       final userJson = data['user'] ?? data['usuario'] ?? data;
       _usuarioActual = Usuario.fromJson(Map<String, dynamic>.from(userJson));
       _isLoggedIn = true;
+
+      // Refrescar perfil completo desde la API para garantizar datos actualizados
+      try {
+        final perfil = await ApiService.get('/api/usuarios/${_usuarioActual!.usuarioID}');
+        _usuarioActual = Usuario.fromJson(Map<String, dynamic>.from(perfil));
+      } catch (_) {}
 
       await _guardarSesion();
       return true;
@@ -137,6 +143,7 @@ class AuthProvider extends ChangeNotifier {
     required String telefono,
     required String password,
     required String confirmPassword,
+    String? documento,
   }) async {
     if (password != confirmPassword) {
       _error = 'Las contraseñas no coinciden';
@@ -156,7 +163,8 @@ class AuthProvider extends ChangeNotifier {
           'Email': email.trim().toLowerCase(),
           'Contrasena': password,
           'Telefono': telefono.trim(),
-          'Direccion': '',
+          if (documento != null && documento.trim().isNotEmpty)
+            'Documento': documento.trim(),
         },
         auth: false,
       );
@@ -257,6 +265,17 @@ class AuthProvider extends ChangeNotifier {
         _usuarioActual = Usuario.fromJson(
             Map<String, dynamic>.from(jsonDecode(raw)));
         _isLoggedIn = true;
+        _inicializando = false;
+        notifyListeners();
+
+        // Refrescar perfil en background para tener datos siempre actualizados
+        try {
+          final perfil = await ApiService.get('/api/usuarios/${_usuarioActual!.usuarioID}');
+          _usuarioActual = Usuario.fromJson(Map<String, dynamic>.from(perfil));
+          await _guardarSesion();
+          notifyListeners();
+        } catch (_) {}
+        return;
       }
     } catch (_) {}
     _inicializando = false;

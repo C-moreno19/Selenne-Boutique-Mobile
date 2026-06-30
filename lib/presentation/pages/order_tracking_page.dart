@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../core/themes/colors.dart';
+import '../../core/utils/snackbar.dart';
 import '../providers/auth_provider.dart';
 import '../providers/order_provider.dart';
 import 'cliente_view.dart';
 
 class OrderTrackingPage extends StatefulWidget {
-  const OrderTrackingPage({Key? key}) : super(key: key);
+  const OrderTrackingPage({super.key});
 
   @override
   State<OrderTrackingPage> createState() => _OrderTrackingPageState();
@@ -120,7 +121,7 @@ class _OrderTrackingPageState extends State<OrderTrackingPage> {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                   decoration: BoxDecoration(
-                    color: estadoColor.withOpacity(0.2),
+                    color: estadoColor.withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(16),
                     border: Border.all(color: estadoColor),
                   ),
@@ -225,13 +226,7 @@ class _OrderTrackingPageState extends State<OrderTrackingPage> {
                     width: 90,
                     child: OutlinedButton.icon(
                       onPressed: () {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(
-                              'Seguimiento: ${pedido.numeroSeguimiento}',
-                            ),
-                          ),
-                        );
+                        AppSnackBar.show(context, 'Seguimiento: ${pedido.numeroSeguimiento}', type: SnackType.info);
                       },
                       icon: const Icon(Icons.content_copy, size: 14),
                       label: const Text('Copiar', style: TextStyle(fontSize: 11)),

@@ -174,8 +174,15 @@ class TiendaProvider extends ChangeNotifier {
 
     // Filtrar por categoría
     if (_categoriaActiva != 'todos') {
-      productos =
-          productos.where((p) => p.categoria == _categoriaActiva).toList();
+      if (_categoriaActiva == 'sale') {
+        productos = productos
+            .where((p) => p.categoria == 'sale' || p.hayDescuento)
+            .toList();
+      } else {
+        productos = productos
+            .where((p) => p.categoria == _categoriaActiva && !p.hayDescuento)
+            .toList();
+      }
     }
 
     // Filtrar por búsqueda

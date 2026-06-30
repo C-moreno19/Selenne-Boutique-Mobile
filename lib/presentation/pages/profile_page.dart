@@ -1,15 +1,16 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import '../../core/utils/snackbar.dart';
 import '../providers/auth_provider.dart';
 import '../providers/providers.dart';
 import '../providers/notification_provider.dart';
 import '../providers/order_provider.dart';
 import '../routes/app_routes.dart';
 
-const _pink = Color(0xFFE91E8C);
-const _darkPink = Color(0xFFA3145F);
-const _lightPink = Color(0xFFFF6FC8);
+const _pink = Color(0xFFD65391);
+const _darkPink = Color(0xFF9E3A6B);
+const _lightPink = Color(0xFFE8A0C0);
 const _black = Color(0xFF1A1A1A);
 const _grey = Color(0xFF666666);
 const _border = Color(0xFFE0E0E0);
@@ -102,10 +103,7 @@ class _ProfilePageState extends State<ProfilePage> {
       _guardando = false;
       if (ok) _editando = false;
     });
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      content: Text(ok ? 'Perfil actualizado' : (auth.error ?? 'Error al guardar')),
-      backgroundColor: ok ? Colors.green : Colors.red,
-    ));
+    AppSnackBar.show(context, ok ? 'Perfil actualizado' : (auth.error ?? 'Error al guardar'), type: ok ? SnackType.success : SnackType.error);
   }
 
   Future<void> _cambiarContrasena() async {
@@ -126,10 +124,7 @@ class _ProfilePageState extends State<ProfilePage> {
         _passConfirmCtrl.clear();
       }
     });
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      content: Text(ok ? 'Contraseña actualizada' : (auth.error ?? 'Error')),
-      backgroundColor: ok ? Colors.green : Colors.red,
-    ));
+    AppSnackBar.show(context, ok ? 'Contraseña actualizada' : (auth.error ?? 'Error'), type: ok ? SnackType.success : SnackType.error);
   }
 
   InputDecoration _deco(String label, {IconData? icon}) => InputDecoration(

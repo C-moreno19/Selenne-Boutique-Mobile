@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../../core/themes/colors.dart';
 import '../../core/utils/responsive.dart';
+import '../../core/utils/snackbar.dart';
 import '../providers/providers.dart';
 import '../widgets/widgets.dart';
 import 'login_page.dart';
@@ -16,7 +17,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 /// Pantalla principal de la tienda
 class ClienteView extends StatefulWidget {
-  const ClienteView({Key? key}) : super(key: key);
+  const ClienteView({super.key});
 
   @override
   State<ClienteView> createState() => _ClienteViewState();
@@ -33,6 +34,8 @@ class _ClienteViewState extends State<ClienteView>
   final _nombreCtrl = TextEditingController();
   final _telefonoCtrl = TextEditingController();
   final _ciudadCtrl = TextEditingController();
+  final _documentoCtrl = TextEditingController();
+  final _direccionCtrl = TextEditingController();
   // Controladores cambio de contraseña
   final _passActualCtrl = TextEditingController();
   final _passNuevaCtrl = TextEditingController();
@@ -40,6 +43,10 @@ class _ClienteViewState extends State<ClienteView>
   bool _perfilGuardando = false;
   bool _passGuardando = false;
   bool _perfilInicializado = false;
+  bool _searchVisible = false;
+
+  int _paginaActual = 1;
+  static const int _productosPorPagina = 6;
 
   String _formatCOP(double valor) {
     final partes = valor.toStringAsFixed(0).replaceAllMapped(
@@ -72,6 +79,8 @@ class _ClienteViewState extends State<ClienteView>
     _nombreCtrl.dispose();
     _telefonoCtrl.dispose();
     _ciudadCtrl.dispose();
+    _documentoCtrl.dispose();
+    _direccionCtrl.dispose();
     _passActualCtrl.dispose();
     _passNuevaCtrl.dispose();
     _passConfirmCtrl.dispose();
@@ -92,143 +101,106 @@ class _ClienteViewState extends State<ClienteView>
   PreferredSizeWidget _buildAppBar() {
     final isMobile = Responsive.isMobile(context);
 
-    return PreferredSize(
-      preferredSize: Size.fromHeight(isMobile ? 130 : kToolbarHeight + 60),
-      child: Container(
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          boxShadow: [
-            BoxShadow(color: Color(0x12000000), blurRadius: 8, offset: Offset(0, 2)),
-          ],
-        ),
-        child: SafeArea(
-          child: Column(
-            children: [
-              // Franja de marca rosada
-              Container(
-                height: 46,
-                padding: EdgeInsets.symmetric(
-                    horizontal: Responsive.getHorizontalPadding(context)),
-                decoration: const BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [Color(0xFFFF6FC8), Color(0xFFE91E8C), Color(0xFFA3145F)],
-                    begin: Alignment.centerLeft,
-                    end: Alignment.centerRight,
-                  ),
-                ),
-                child: Row(
-                  children: [
-                    // Logo pequeño
-                    Container(
-                      width: 30,
-                      height: 30,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: Colors.white.withValues(alpha: 0.2),
-                      ),
-                      padding: const EdgeInsets.all(4),
-                      child: Image.asset('assets/icons/logo_selenne.png',
-                          fit: BoxFit.contain),
-                    ),
-                    const SizedBox(width: 10),
-                    Text(
-                      'Selenne Boutique',
-                      style: GoogleFonts.playfairDisplay(
-                        fontSize: 17,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                        fontStyle: FontStyle.italic,
-                      ),
-                    ),
-                    const Spacer(),
-                    // Icono campana (mobile)
-                    if (isMobile)
-                      Consumer<NotificationProvider>(
-                        builder: (context, notif, _) => Stack(
-                          children: [
-                            IconButton(
-                              icon: const Icon(Icons.notifications_outlined,
-                                  color: Colors.white),
-                              onPressed: () => Navigator.push(context,
-                                  MaterialPageRoute(
-                                      builder: (_) => const NotificationsPage())),
-                            ),
-                            if (notif.notificacionesNoLeidas > 0)
-                              Positioned(
-                                top: 4,
-                                right: 4,
-                                child: Container(
-                                  width: 16,
-                                  height: 16,
-                                  decoration: const BoxDecoration(
-                                      color: Color(0xFF1A1A1A),
-                                      shape: BoxShape.circle),
-                                  child: Center(
-                                    child: Text('${notif.notificacionesNoLeidas}',
-                                        style: const TextStyle(
-                                            color: Colors.white,
-                                            fontSize: 9,
-                                            fontWeight: FontWeight.bold)),
-                                  ),
-                                ),
-                              ),
-                          ],
-                        ),
-                      ),
-                    // Icono carrito (solo desktop)
-                    if (!isMobile)
-                      Consumer<CarritoProvider>(
-                        builder: (context, carrito, _) => Stack(
-                          children: [
-                            IconButton(
-                              icon: const Icon(Icons.shopping_bag_outlined,
-                                  color: Colors.white),
-                              onPressed: _mostrarCarrito,
-                            ),
-                            if (carrito.itemCount > 0)
-                              Positioned(
-                                top: 4,
-                                right: 4,
-                                child: Container(
-                                  width: 16,
-                                  height: 16,
-                                  decoration: const BoxDecoration(
-                                      color: Color(0xFF1A1A1A),
-                                      shape: BoxShape.circle),
-                                  child: Center(
-                                    child: Text('${carrito.itemCount}',
-                                        style: const TextStyle(
-                                            color: Colors.white,
-                                            fontSize: 9,
-                                            fontWeight: FontWeight.bold)),
-                                  ),
-                                ),
-                              ),
-                          ],
-                        ),
-                      ),
-                    if (!isMobile)
-                      IconButton(
-                        icon: const Icon(Icons.person_outline,
-                            color: Colors.white),
-                        onPressed: () =>
-                            setState(() => _vistaActual = 'perfil'),
-                      ),
-                  ],
-                ),
-              ),
-              // Barra de búsqueda
-              Padding(
-                padding: EdgeInsets.symmetric(
-                  horizontal: Responsive.getHorizontalPadding(context),
-                  vertical: 10,
-                ),
-                child: _buildSearchBar(),
-              ),
-            ],
+    return AppBar(
+      backgroundColor: Colors.white,
+      elevation: 0,
+      scrolledUnderElevation: 0.5,
+      shadowColor: const Color(0x14000000),
+      titleSpacing: 16,
+      title: Row(
+        children: [
+          SizedBox(
+            width: 26,
+            height: 26,
+            child: Image.asset('assets/icons/logo_selenne.png', fit: BoxFit.contain),
           ),
-        ),
+          const SizedBox(width: 8),
+          Text(
+            'Selenne Boutique',
+            style: GoogleFonts.playfairDisplay(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: const Color(0xFF1A1A1A),
+              fontStyle: FontStyle.italic,
+            ),
+          ),
+        ],
       ),
+      actions: [
+        // Buscar
+        IconButton(
+          icon: Icon(
+            _searchVisible ? Icons.search_off_outlined : Icons.search_outlined,
+            color: const Color(0xFF1A1A1A),
+          ),
+          onPressed: () {
+            setState(() {
+              _searchVisible = !_searchVisible;
+              if (!_searchVisible) {
+                _searchController.clear();
+                context.read<TiendaProvider>().setBusqueda('');
+              }
+            });
+          },
+        ),
+        // Campana (mobile)
+        if (isMobile)
+          Consumer<NotificationProvider>(
+            builder: (context, notif, _) => Stack(
+              clipBehavior: Clip.none,
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.notifications_outlined, color: Color(0xFF1A1A1A)),
+                  onPressed: () => Navigator.push(context,
+                      MaterialPageRoute(builder: (_) => const NotificationsPage())),
+                ),
+                if (notif.notificacionesNoLeidas > 0)
+                  Positioned(
+                    top: 6, right: 6,
+                    child: Container(
+                      width: 15, height: 15,
+                      decoration: const BoxDecoration(color: AppColors.primary, shape: BoxShape.circle),
+                      child: Center(
+                        child: Text('${notif.notificacionesNoLeidas}',
+                            style: const TextStyle(color: Colors.white, fontSize: 8, fontWeight: FontWeight.bold)),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        // Carrito (desktop)
+        if (!isMobile)
+          Consumer<CarritoProvider>(
+            builder: (context, carrito, _) => Stack(
+              clipBehavior: Clip.none,
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.shopping_bag_outlined, color: Color(0xFF1A1A1A)),
+                  onPressed: _mostrarCarrito,
+                ),
+                if (carrito.itemCount > 0)
+                  Positioned(
+                    top: 6, right: 6,
+                    child: Container(
+                      width: 15, height: 15,
+                      decoration: const BoxDecoration(color: AppColors.primary, shape: BoxShape.circle),
+                      child: Center(
+                        child: Text('${carrito.itemCount}',
+                            style: const TextStyle(color: Colors.white, fontSize: 8, fontWeight: FontWeight.bold)),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        if (!isMobile)
+          IconButton(
+            icon: const Icon(Icons.person_outline, color: Color(0xFF1A1A1A)),
+            onPressed: () => setState(() => _vistaActual = 'perfil'),
+          ),
+        const SizedBox(width: 4),
+      ],
     );
   }
 
@@ -237,6 +209,7 @@ class _ClienteViewState extends State<ClienteView>
       controller: _searchController,
       onChanged: (value) {
         context.read<TiendaProvider>().setBusqueda(value);
+        setState(() => _paginaActual = 1);
       },
       decoration: InputDecoration(
         hintText: 'Buscar productos...',
@@ -281,12 +254,19 @@ class _ClienteViewState extends State<ClienteView>
     return Consumer<TiendaProvider>(
       builder: (context, tiendaProvider, _) {
         return RefreshIndicator(
-          color: const Color(0xFFE91E8C),
+          color: AppColors.primary,
           onRefresh: () => tiendaProvider.cargarProductos(),
           child: SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
           child: Column(
             children: [
+              // Barra de búsqueda colapsable
+              if (_searchVisible)
+                Container(
+                  color: Colors.white,
+                  padding: const EdgeInsets.fromLTRB(16, 8, 16, 10),
+                  child: _buildSearchBar(),
+                ),
               // Banner principal estilo colección
               _buildHeroBanner(),
               const SizedBox(height: 12),
@@ -322,15 +302,10 @@ class _ClienteViewState extends State<ClienteView>
                               padding: const EdgeInsets.symmetric(
                                   horizontal: 14, vertical: 8),
                               decoration: BoxDecoration(
-                                gradient: hayFiltros
-                                    ? const LinearGradient(
-                                        colors: [Color(0xFFFF6FC8), Color(0xFFE91E8C)],
-                                      )
-                                    : null,
-                                color: hayFiltros ? null : Colors.white,
+                                color: hayFiltros ? AppColors.primary : Colors.white,
                                 borderRadius: BorderRadius.circular(20),
                                 border: Border.all(
-                                  color: const Color(0xFFE91E8C),
+                                  color: AppColors.primary,
                                   width: hayFiltros ? 0 : 1.5,
                                 ),
                                 boxShadow: [
@@ -346,18 +321,14 @@ class _ClienteViewState extends State<ClienteView>
                                 children: [
                                   Icon(Icons.tune_rounded,
                                       size: 16,
-                                      color: hayFiltros
-                                          ? Colors.white
-                                          : const Color(0xFFE91E8C)),
+                                      color: hayFiltros ? Colors.white : AppColors.primary),
                                   const SizedBox(width: 6),
                                   Text(
                                     hayFiltros ? 'Filtros activos' : 'Filtrar',
                                     style: TextStyle(
                                       fontSize: 12,
                                       fontWeight: FontWeight.w600,
-                                      color: hayFiltros
-                                          ? Colors.white
-                                          : const Color(0xFFE91E8C),
+                                      color: hayFiltros ? Colors.white : AppColors.primary,
                                     ),
                                   ),
                                 ],
@@ -408,19 +379,9 @@ class _ClienteViewState extends State<ClienteView>
       width: double.infinity,
       margin: const EdgeInsets.fromLTRB(16, 12, 16, 4),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(20),
-        gradient: const LinearGradient(
-          colors: [Color(0xFFFF6FC8), Color(0xFFE91E8C), Color(0xFFA3145F)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: const Color(0xFFE91E8C).withValues(alpha: 0.3),
-            blurRadius: 16,
-            offset: const Offset(0, 6),
-          ),
-        ],
+        color: const Color(0xFFF8F4F2),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFFEDE8E5)),
       ),
       padding: const EdgeInsets.fromLTRB(22, 22, 22, 22),
       child: Row(
@@ -429,81 +390,55 @@ class _ClienteViewState extends State<ClienteView>
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.2),
-                    borderRadius: BorderRadius.circular(20),
+                const Text(
+                  'NUEVA COLECCIÓN',
+                  style: TextStyle(
+                    fontSize: 10,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.primary,
+                    letterSpacing: 1.5,
                   ),
-                  child: const Text('Nueva Colección',
-                      style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 11,
-                          fontWeight: FontWeight.w600)),
                 ),
-                const SizedBox(height: 10),
+                const SizedBox(height: 8),
                 Text(
                   'Moda\nFemenina',
                   style: GoogleFonts.playfairDisplay(
-                    fontSize: 30,
+                    fontSize: 28,
                     fontWeight: FontWeight.bold,
-                    color: Colors.white,
+                    color: const Color(0xFF1A1A1A),
                     height: 1.1,
                   ),
                 ),
                 const SizedBox(height: 8),
                 const Text(
                   'Elegancia y estilo para ti',
-                  style: TextStyle(
-                      color: Colors.white70,
-                      fontSize: 13),
+                  style: TextStyle(color: Color(0xFF888888), fontSize: 13),
                 ),
                 const SizedBox(height: 16),
                 Container(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 16, vertical: 8),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(20),
-                  ),
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  decoration: const BoxDecoration(color: Color(0xFF1A1A1A)),
                   child: const Text(
                     'Ver colección',
                     style: TextStyle(
-                        color: Color(0xFFE91E8C),
-                        fontWeight: FontWeight.w700,
-                        fontSize: 12),
+                      color: Colors.white,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 12,
+                    ),
                   ),
                 ),
               ],
             ),
           ),
-          const SizedBox(width: 12),
-          // Decoración derecha
-          Column(
-            children: [
-              Container(
-                width: 70,
-                height: 70,
-                decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.15),
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(Icons.diamond_outlined,
-                    color: Colors.white, size: 36),
-              ),
-              const SizedBox(height: 10),
-              Container(
-                width: 44,
-                height: 44,
-                decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.1),
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(Icons.local_offer_outlined,
-                    color: Colors.white70, size: 22),
-              ),
-            ],
+          const SizedBox(width: 16),
+          Container(
+            width: 68,
+            height: 68,
+            decoration: BoxDecoration(
+              color: AppColors.primary.withValues(alpha: 0.08),
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(Icons.diamond_outlined, color: AppColors.primary, size: 30),
           ),
         ],
       ),
@@ -532,6 +467,7 @@ class _ClienteViewState extends State<ClienteView>
                   child: GestureDetector(
                     onTap: () {
                       tiendaProvider.setCategoriaActiva(cat['value']!);
+                      setState(() => _paginaActual = 1);
                     },
                     child: Container(
                       padding: const EdgeInsets.symmetric(
@@ -609,60 +545,174 @@ class _ClienteViewState extends State<ClienteView>
   Widget _buildGridProductos() {
     return Consumer<TiendaProvider>(
       builder: (context, tiendaProvider, _) {
-        if (tiendaProvider.filteredProductos.isEmpty) {
+        final todos = tiendaProvider.filteredProductos;
+
+        if (todos.isEmpty) {
           return Padding(
             padding: const EdgeInsets.symmetric(vertical: 48),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(
-                  Icons.shopping_bag_outlined,
-                  size: 64,
-                  color: AppColors.textLight,
-                ),
+                Icon(Icons.shopping_bag_outlined, size: 64, color: AppColors.textLight),
                 const SizedBox(height: 16),
-                const Text(
-                  'No hay productos disponibles',
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: AppColors.textSecondary,
-                  ),
-                ),
+                const Text('No hay productos disponibles',
+                    style: TextStyle(fontSize: 14, color: AppColors.textSecondary)),
               ],
             ),
           );
         }
 
+        final totalPaginas = (todos.length / _productosPorPagina).ceil().clamp(1, 9999);
+        final paginaSegura = _paginaActual.clamp(1, totalPaginas);
+        if (paginaSegura != _paginaActual) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (mounted) setState(() => _paginaActual = paginaSegura);
+          });
+        }
+
+        final inicio = (paginaSegura - 1) * _productosPorPagina;
+        final fin = (inicio + _productosPorPagina).clamp(0, todos.length);
+        final productosEnPagina = todos.sublist(inicio, fin);
+
         final columns = Responsive.getGridColumns(context);
         final padding = Responsive.getHorizontalPadding(context);
 
-        return Padding(
-          padding: EdgeInsets.all(padding),
-          child: GridView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: columns,
-              crossAxisSpacing: 12,
-              mainAxisSpacing: 12,
-              childAspectRatio: 0.55,
-            ),
-            itemCount: tiendaProvider.filteredProductos.length,
-            itemBuilder: (context, index) {
-              final producto = tiendaProvider.filteredProductos[index];
-              return ProductCard(
-                producto: producto,
-                onTap: () {
-                  showDialog(
-                    context: context,
-                    builder: (_) => DetalleProductoModal(producto: producto),
+        return Column(
+          children: [
+            Padding(
+              padding: EdgeInsets.all(padding),
+              child: GridView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: columns,
+                  crossAxisSpacing: 12,
+                  mainAxisSpacing: 12,
+                  childAspectRatio: 0.55,
+                ),
+                itemCount: productosEnPagina.length,
+                itemBuilder: (context, index) {
+                  final producto = productosEnPagina[index];
+                  return ProductCard(
+                    producto: producto,
+                    onTap: () {
+                      showDialog(
+                        context: context,
+                        builder: (_) => DetalleProductoModal(producto: producto),
+                      );
+                    },
                   );
                 },
-              );
-            },
-          ),
+              ),
+            ),
+            if (totalPaginas > 1) _buildPaginador(paginaSegura, totalPaginas),
+            const SizedBox(height: 16),
+          ],
         );
       },
+    );
+  }
+
+  Widget _buildPaginador(int pagina, int totalPaginas) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          _paginadorBtn(
+            icon: Icons.chevron_left_rounded,
+            enabled: pagina > 1,
+            onTap: () => setState(() => _paginaActual = pagina - 1),
+          ),
+          const SizedBox(width: 6),
+          ..._paginaChips(pagina, totalPaginas),
+          const SizedBox(width: 6),
+          _paginadorBtn(
+            icon: Icons.chevron_right_rounded,
+            enabled: pagina < totalPaginas,
+            onTap: () => setState(() => _paginaActual = pagina + 1),
+          ),
+        ],
+      ),
+    );
+  }
+
+  List<Widget> _paginaChips(int pagina, int total) {
+    final chips = <Widget>[];
+    int start = (pagina - 2).clamp(1, total);
+    int end = (start + 4).clamp(1, total);
+    if (end - start < 4) start = (end - 4).clamp(1, total);
+
+    if (start > 1) {
+      chips.add(_paginaNum(1, pagina));
+      if (start > 2) {
+        chips.add(const Padding(
+          padding: EdgeInsets.symmetric(horizontal: 4),
+          child: Text('…', style: TextStyle(color: Color(0xFFAAAAAA), fontSize: 13)),
+        ));
+      }
+    }
+    for (int i = start; i <= end; i++) {
+      chips.add(_paginaNum(i, pagina));
+    }
+    if (end < total) {
+      if (end < total - 1) {
+        chips.add(const Padding(
+          padding: EdgeInsets.symmetric(horizontal: 4),
+          child: Text('…', style: TextStyle(color: Color(0xFFAAAAAA), fontSize: 13)),
+        ));
+      }
+      chips.add(_paginaNum(total, pagina));
+    }
+    return chips;
+  }
+
+  Widget _paginaNum(int num, int actual) {
+    final isActive = num == actual;
+    return GestureDetector(
+      onTap: () => setState(() => _paginaActual = num),
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 3),
+        width: 36,
+        height: 36,
+        decoration: BoxDecoration(
+          color: isActive ? AppColors.primary : Colors.white,
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(
+            color: isActive ? AppColors.primary : const Color(0xFFE0E0E0),
+          ),
+        ),
+        child: Center(
+          child: Text(
+            '$num',
+            style: TextStyle(
+              fontSize: 13,
+              fontWeight: isActive ? FontWeight.w700 : FontWeight.w400,
+              color: isActive ? Colors.white : const Color(0xFF555555),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _paginadorBtn({required IconData icon, required bool enabled, required VoidCallback onTap}) {
+    return GestureDetector(
+      onTap: enabled ? onTap : null,
+      child: Container(
+        width: 36,
+        height: 36,
+        decoration: BoxDecoration(
+          color: enabled ? Colors.white : const Color(0xFFF5F5F5),
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(color: const Color(0xFFE0E0E0)),
+        ),
+        child: Icon(
+          icon,
+          color: enabled ? const Color(0xFF555555) : const Color(0xFFCCCCCC),
+          size: 22,
+        ),
+      ),
     );
   }
 
@@ -679,13 +729,7 @@ class _ClienteViewState extends State<ClienteView>
             Container(
               width: double.infinity,
               padding: const EdgeInsets.fromLTRB(16, 20, 16, 16),
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [Color(0xFFFF6FC8), Color(0xFFE91E8C)],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-              ),
+              color: Colors.white,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -694,15 +738,13 @@ class _ClienteViewState extends State<ClienteView>
                     style: GoogleFonts.playfairDisplay(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
-                      color: Colors.white,
+                      color: const Color(0xFF1A1A1A),
                     ),
                   ),
                   const SizedBox(height: 4),
                   Text(
                     '${productosFav.length} producto${productosFav.length != 1 ? 's' : ''} guardados',
-                    style: TextStyle(
-                        color: Colors.white.withValues(alpha: 0.85),
-                        fontSize: 13),
+                    style: const TextStyle(color: Color(0xFF888888), fontSize: 13),
                   ),
                 ],
               ),
@@ -797,8 +839,7 @@ class _ClienteViewState extends State<ClienteView>
             borderSide: const BorderSide(color: Color(0xFFE0E0E0))),
         focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
-            borderSide:
-                const BorderSide(color: Color(0xFFE91E8C), width: 2)),
+            borderSide: const BorderSide(color: AppColors.primary, width: 2)),
       );
 
   Widget _buildPerfil() {
@@ -810,25 +851,20 @@ class _ClienteViewState extends State<ClienteView>
           _nombreCtrl.text = usuario.nombre;
           _telefonoCtrl.text = usuario.telefono;
           _ciudadCtrl.text = usuario.ciudad ?? '';
+          _documentoCtrl.text = usuario.documento ?? '';
+          _direccionCtrl.text = usuario.direccion ?? '';
           _perfilInicializado = true;
         }
 
         return Column(
           children: [
-            // Tarjeta de usuario con degradado
+            // Tarjeta de usuario
             Container(
               width: double.infinity,
-              padding: const EdgeInsets.fromLTRB(20, 20, 20, 24),
+              padding: const EdgeInsets.fromLTRB(20, 20, 20, 20),
               decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    Color(0xFFFF6FC8),
-                    Color(0xFFE91E8C),
-                    Color(0xFFA3145F)
-                  ],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
+                color: Colors.white,
+                border: Border(bottom: BorderSide(color: Color(0xFFEEEEEE))),
               ),
               child: Row(
                 children: [
@@ -838,10 +874,8 @@ class _ClienteViewState extends State<ClienteView>
                     height: 60,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: Colors.white.withValues(alpha: 0.25),
-                      border: Border.all(
-                          color: Colors.white.withValues(alpha: 0.5),
-                          width: 2),
+                      color: const Color(0xFFF0F0F0),
+                      border: Border.all(color: const Color(0xFFE0E0E0)),
                     ),
                     child: Center(
                       child: Text(
@@ -851,7 +885,7 @@ class _ClienteViewState extends State<ClienteView>
                         style: GoogleFonts.playfairDisplay(
                           fontSize: 26,
                           fontWeight: FontWeight.bold,
-                          color: Colors.white,
+                          color: const Color(0xFF1A1A1A),
                         ),
                       ),
                     ),
@@ -866,31 +900,25 @@ class _ClienteViewState extends State<ClienteView>
                           style: GoogleFonts.playfairDisplay(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
-                            color: Colors.white,
+                            color: const Color(0xFF1A1A1A),
                           ),
                         ),
                         const SizedBox(height: 4),
                         Text(
                           usuario?.email ?? '',
-                          style: TextStyle(
-                              color: Colors.white.withValues(alpha: 0.85),
-                              fontSize: 13),
+                          style: const TextStyle(color: Color(0xFF888888), fontSize: 13),
                         ),
                         if (usuario?.ciudad != null &&
                             usuario!.ciudad!.isNotEmpty) ...[
                           const SizedBox(height: 4),
                           Row(
                             children: [
-                              Icon(Icons.location_on_outlined,
-                                  size: 13,
-                                  color: Colors.white.withValues(alpha: 0.7)),
+                              const Icon(Icons.location_on_outlined,
+                                  size: 13, color: Color(0xFF888888)),
                               const SizedBox(width: 3),
                               Text(
                                 usuario.ciudad!,
-                                style: TextStyle(
-                                    color:
-                                        Colors.white.withValues(alpha: 0.7),
-                                    fontSize: 12),
+                                style: const TextStyle(color: Color(0xFF888888), fontSize: 12),
                               ),
                             ],
                           ),
@@ -906,9 +934,9 @@ class _ClienteViewState extends State<ClienteView>
               color: Colors.white,
               child: TabBar(
                 controller: _perfilTabController,
-                indicatorColor: const Color(0xFFE91E8C),
+                indicatorColor: AppColors.primary,
                 indicatorWeight: 3,
-                labelColor: const Color(0xFFE91E8C),
+                labelColor: AppColors.primary,
                 unselectedLabelColor: const Color(0xFF888888),
                 labelStyle: const TextStyle(
                     fontWeight: FontWeight.w600, fontSize: 13),
@@ -959,6 +987,19 @@ class _ClienteViewState extends State<ClienteView>
                           decoration: _perfilInputDeco(
                               'Ciudad', Icons.location_on_outlined),
                         ),
+                        const SizedBox(height: 14),
+                        TextField(
+                          controller: _documentoCtrl,
+                          keyboardType: TextInputType.number,
+                          decoration: _perfilInputDeco(
+                              'Documento', Icons.badge_outlined),
+                        ),
+                        const SizedBox(height: 14),
+                        TextField(
+                          controller: _direccionCtrl,
+                          decoration: _perfilInputDeco(
+                              'Dirección', Icons.home_outlined),
+                        ),
                         const SizedBox(height: 6),
                         if (auth.error != null)
                           Padding(
@@ -992,20 +1033,15 @@ class _ClienteViewState extends State<ClienteView>
                                       nombre: _nombreCtrl.text.trim(),
                                       telefono: _telefonoCtrl.text.trim(),
                                       ciudad: _ciudadCtrl.text.trim(),
+                                      documento: _documentoCtrl.text.trim(),
+                                      direccion: _direccionCtrl.text.trim(),
                                     );
                                     if (mounted) {
                                       setState(
                                           () => _perfilGuardando = false);
-                                      ScaffoldMessenger.of(context)
-                                          .showSnackBar(SnackBar(
-                                        content: Text(ok
-                                            ? 'Perfil actualizado'
-                                            : (auth.error ??
-                                                'Error al guardar')),
-                                        backgroundColor: ok
-                                            ? const Color(0xFF2E7D32)
-                                            : Colors.red,
-                                      ));
+                                      AppSnackBar.show(context,
+                                          ok ? 'Perfil actualizado' : (auth.error ?? 'Error al guardar'),
+                                          type: ok ? SnackType.success : SnackType.error);
                                     }
                                   },
                             style: ElevatedButton.styleFrom(
@@ -1065,21 +1101,11 @@ class _ClienteViewState extends State<ClienteView>
                                 : () async {
                                     if (_passNuevaCtrl.text !=
                                         _passConfirmCtrl.text) {
-                                      ScaffoldMessenger.of(context)
-                                          .showSnackBar(const SnackBar(
-                                        content: Text(
-                                            'Las contraseñas no coinciden'),
-                                        backgroundColor: Colors.red,
-                                      ));
+                                      AppSnackBar.show(context, 'Las contraseñas no coinciden', type: SnackType.error);
                                       return;
                                     }
                                     if (_passNuevaCtrl.text.length < 6) {
-                                      ScaffoldMessenger.of(context)
-                                          .showSnackBar(const SnackBar(
-                                        content:
-                                            Text('Mínimo 6 caracteres'),
-                                        backgroundColor: Colors.red,
-                                      ));
+                                      AppSnackBar.show(context, 'Mínimo 6 caracteres', type: SnackType.error);
                                       return;
                                     }
                                     setState(() => _passGuardando = true);
@@ -1095,16 +1121,9 @@ class _ClienteViewState extends State<ClienteView>
                                         _passNuevaCtrl.clear();
                                         _passConfirmCtrl.clear();
                                       }
-                                      ScaffoldMessenger.of(context)
-                                          .showSnackBar(SnackBar(
-                                        content: Text(ok
-                                            ? 'Contraseña actualizada'
-                                            : (auth.error ??
-                                                'Error al cambiar contraseña')),
-                                        backgroundColor: ok
-                                            ? const Color(0xFF2E7D32)
-                                            : Colors.red,
-                                      ));
+                                      AppSnackBar.show(context,
+                                          ok ? 'Contraseña actualizada' : (auth.error ?? 'Error al cambiar contraseña'),
+                                          type: ok ? SnackType.success : SnackType.error);
                                     }
                                   },
                             style: ElevatedButton.styleFrom(
@@ -1153,7 +1172,7 @@ class _ClienteViewState extends State<ClienteView>
                                   Icons.shopping_bag_outlined,
                                   'Mis Pedidos',
                                   'Ver historial de compras',
-                                  const Color(0xFFE91E8C),
+                                  AppColors.primary,
                                   () => Navigator.push(
                                         context,
                                         MaterialPageRoute(
@@ -1283,9 +1302,7 @@ class _ClienteViewState extends State<ClienteView>
   }
 
   Widget _buildBottomNav() {
-    const _pink = Color(0xFFE91E8C);
-
-    int currentIndex = _vistaActual == 'tienda'
+    final currentIndex = _vistaActual == 'tienda'
         ? 0
         : _vistaActual == 'favoritos'
             ? 1
@@ -1293,127 +1310,238 @@ class _ClienteViewState extends State<ClienteView>
                 ? 2
                 : _vistaActual == 'perfil'
                     ? 3
-                    : 4;
+                    : -1; // carrito no es una vista, no resalta ninguno
+
+    void onTap(int index) {
+      if (index == 0) { setState(() => _vistaActual = 'tienda'); }
+      else if (index == 1) { setState(() => _vistaActual = 'favoritos'); }
+      else if (index == 2) { setState(() => _vistaActual = 'notificaciones'); }
+      else if (index == 3) { setState(() => _vistaActual = 'perfil'); }
+      else if (index == 4) { _mostrarCarrito(); }
+    }
 
     return Container(
       decoration: const BoxDecoration(
         color: Colors.white,
         boxShadow: [
-          BoxShadow(
-              color: Color(0x14000000),
-              blurRadius: 12,
-              offset: Offset(0, -3)),
+          BoxShadow(color: Color(0x12000000), blurRadius: 16, offset: Offset(0, -2)),
         ],
       ),
-      child: BottomNavigationBar(
-        currentIndex: currentIndex,
-        selectedItemColor: _pink,
-        unselectedItemColor: const Color(0xFFAAAAAA),
-        type: BottomNavigationBarType.fixed,
-        backgroundColor: Colors.white,
-        elevation: 0,
-        selectedLabelStyle: const TextStyle(
-            fontWeight: FontWeight.w600, fontSize: 11),
-        unselectedLabelStyle: const TextStyle(fontSize: 11),
-        items: [
-          BottomNavigationBarItem(
-            icon: Icon(currentIndex == 0
-                ? Icons.home_rounded
-                : Icons.home_outlined),
-            label: 'Tienda',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(currentIndex == 1
-                ? Icons.favorite_rounded
-                : Icons.favorite_outline),
-            label: 'Favoritos',
-          ),
-          BottomNavigationBarItem(
-            icon: Consumer<NotificationProvider>(
-              builder: (context, notif, _) => Stack(
-                clipBehavior: Clip.none,
-                children: [
-                  Icon(currentIndex == 2
-                      ? Icons.notifications_rounded
-                      : Icons.notifications_outlined),
-                  if (notif.contadorNoLeidas > 0)
-                    Positioned(
-                      top: -6,
-                      right: -8,
-                      child: Container(
-                        width: 17,
-                        height: 17,
-                        decoration: const BoxDecoration(
-                            color: _pink, shape: BoxShape.circle),
-                        child: Center(
-                          child: Text(
-                            '${notif.contadorNoLeidas > 9 ? '9+' : notif.contadorNoLeidas}',
-                            style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 9,
-                                fontWeight: FontWeight.bold),
-                          ),
+      child: SafeArea(
+        top: false,
+        child: SizedBox(
+          height: 62,
+          child: Row(
+            children: [
+              // ── Tienda ──────────────────────────────────────────────────────
+              _navPill(
+                index: 0,
+                current: currentIndex,
+                activeIcon: Icons.home_rounded,
+                inactiveIcon: Icons.home_outlined,
+                label: 'Tienda',
+                onTap: onTap,
+              ),
+              // ── Favoritos ───────────────────────────────────────────────────
+              _navPill(
+                index: 1,
+                current: currentIndex,
+                activeIcon: Icons.favorite_rounded,
+                inactiveIcon: Icons.favorite_border_rounded,
+                label: 'Favoritos',
+                onTap: onTap,
+              ),
+              // ── Alertas (con badge) ─────────────────────────────────────────
+              Expanded(
+                child: GestureDetector(
+                  onTap: () => onTap(2),
+                  behavior: HitTestBehavior.opaque,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Consumer<NotificationProvider>(
+                        builder: (context, notif, _) {
+                          final isActive = currentIndex == 2;
+                          return Stack(
+                            clipBehavior: Clip.none,
+                            children: [
+                              AnimatedContainer(
+                                duration: const Duration(milliseconds: 220),
+                                curve: Curves.easeInOut,
+                                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 5),
+                                decoration: BoxDecoration(
+                                  color: isActive
+                                      ? AppColors.primary
+                                      : Colors.transparent,
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                                child: Icon(
+                                  isActive
+                                      ? Icons.notifications_rounded
+                                      : Icons.notifications_none_rounded,
+                                  color: isActive ? Colors.white : const Color(0xFFAAAAAA),
+                                  size: 22,
+                                ),
+                              ),
+                              if (notif.contadorNoLeidas > 0)
+                                Positioned(
+                                  top: -3,
+                                  right: isActive ? -2 : -6,
+                                  child: Container(
+                                    width: 16,
+                                    height: 16,
+                                    decoration: const BoxDecoration(
+                                        color: Color(0xFFE53935),
+                                        shape: BoxShape.circle),
+                                    child: Center(
+                                      child: Text(
+                                        notif.contadorNoLeidas > 9
+                                            ? '9+'
+                                            : '${notif.contadorNoLeidas}',
+                                        style: const TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 8,
+                                            fontWeight: FontWeight.bold),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                            ],
+                          );
+                        },
+                      ),
+                      const SizedBox(height: 3),
+                      AnimatedDefaultTextStyle(
+                        duration: const Duration(milliseconds: 220),
+                        style: TextStyle(
+                          fontSize: 10,
+                          fontWeight: currentIndex == 2
+                              ? FontWeight.w700
+                              : FontWeight.w400,
+                          color: currentIndex == 2
+                              ? AppColors.primary
+                              : const Color(0xFFAAAAAA),
+                        ),
+                        child: const Text('Alertas'),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              // ── Perfil ──────────────────────────────────────────────────────
+              _navPill(
+                index: 3,
+                current: currentIndex,
+                activeIcon: Icons.account_circle_rounded,
+                inactiveIcon: Icons.account_circle_outlined,
+                label: 'Perfil',
+                onTap: onTap,
+              ),
+              // ── Carrito (sin cambios en el ícono) ───────────────────────────
+              Expanded(
+                child: GestureDetector(
+                  onTap: () => onTap(4),
+                  behavior: HitTestBehavior.opaque,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Consumer<CarritoProvider>(
+                        builder: (context, carrito, _) => Stack(
+                          clipBehavior: Clip.none,
+                          children: [
+                            const Padding(
+                              padding: EdgeInsets.symmetric(horizontal: 14, vertical: 5),
+                              child: Icon(
+                                Icons.shopping_bag_outlined,
+                                color: Color(0xFFAAAAAA),
+                                size: 22,
+                              ),
+                            ),
+                            if (carrito.itemCount > 0)
+                              Positioned(
+                                top: -3,
+                                right: -6,
+                                child: Container(
+                                  width: 16,
+                                  height: 16,
+                                  decoration: const BoxDecoration(
+                                      color: AppColors.primary,
+                                      shape: BoxShape.circle),
+                                  child: Center(
+                                    child: Text(
+                                      '${carrito.itemCount}',
+                                      style: const TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 8,
+                                          fontWeight: FontWeight.bold),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                          ],
                         ),
                       ),
-                    ),
-                ],
-              ),
-            ),
-            label: 'Alertas',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(currentIndex == 3
-                ? Icons.person_rounded
-                : Icons.person_outline_rounded),
-            label: 'Perfil',
-          ),
-          BottomNavigationBarItem(
-            icon: Consumer<CarritoProvider>(
-              builder: (context, carrito, _) => Stack(
-                clipBehavior: Clip.none,
-                children: [
-                  Icon(currentIndex == 4
-                      ? Icons.shopping_bag_rounded
-                      : Icons.shopping_bag_outlined),
-                  if (carrito.itemCount > 0)
-                    Positioned(
-                      top: -6,
-                      right: -8,
-                      child: Container(
-                        width: 17,
-                        height: 17,
-                        decoration: const BoxDecoration(
-                            color: _pink, shape: BoxShape.circle),
-                        child: Center(
-                          child: Text(
-                            '${carrito.itemCount}',
-                            style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 9,
-                                fontWeight: FontWeight.bold),
-                          ),
-                        ),
+                      const SizedBox(height: 3),
+                      const Text(
+                        'Carrito',
+                        style: TextStyle(
+                            fontSize: 10,
+                            fontWeight: FontWeight.w400,
+                            color: Color(0xFFAAAAAA)),
                       ),
-                    ),
-                ],
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _navPill({
+    required int index,
+    required int current,
+    required IconData activeIcon,
+    required IconData inactiveIcon,
+    required String label,
+    required void Function(int) onTap,
+  }) {
+    final isActive = index == current;
+    return Expanded(
+      child: GestureDetector(
+        onTap: () => onTap(index),
+        behavior: HitTestBehavior.opaque,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            AnimatedContainer(
+              duration: const Duration(milliseconds: 220),
+              curve: Curves.easeInOut,
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 5),
+              decoration: BoxDecoration(
+                color: isActive ? AppColors.primary : Colors.transparent,
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Icon(
+                isActive ? activeIcon : inactiveIcon,
+                color: isActive ? Colors.white : const Color(0xFFAAAAAA),
+                size: 22,
               ),
             ),
-            label: 'Carrito',
-          ),
-        ],
-        onTap: (index) {
-          if (index == 0) {
-            setState(() => _vistaActual = 'tienda');
-          } else if (index == 1) {
-            setState(() => _vistaActual = 'favoritos');
-          } else if (index == 2) {
-            setState(() => _vistaActual = 'notificaciones');
-          } else if (index == 3) {
-            setState(() => _vistaActual = 'perfil');
-          } else if (index == 4) {
-            _mostrarCarrito();
-          }
-        },
+            const SizedBox(height: 3),
+            AnimatedDefaultTextStyle(
+              duration: const Duration(milliseconds: 220),
+              style: TextStyle(
+                fontSize: 10,
+                fontWeight: isActive ? FontWeight.w700 : FontWeight.w400,
+                color: isActive ? AppColors.primary : const Color(0xFFAAAAAA),
+              ),
+              child: Text(label),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -1430,228 +1558,347 @@ class _ClienteViewState extends State<ClienteView>
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (modalContext) {
-        return DraggableScrollableSheet(
-          expand: false,
-          initialChildSize: 0.65,
-          maxChildSize: 0.94,
-          builder: (_, scrollController) {
-            return Consumer<CarritoProvider>(
-              builder: (context, carrito, __) {
-                return Container(
-                  decoration: const BoxDecoration(
-                    color: Color(0xFFF5F5F5),
-                    borderRadius:
-                        BorderRadius.vertical(top: Radius.circular(24)),
-                  ),
-                  child: SafeArea(
+        return Consumer<CarritoProvider>(
+          builder: (context, carrito, __) {
+            return ConstrainedBox(
+              constraints: BoxConstraints(
+                maxHeight: MediaQuery.of(context).size.height * 0.88,
+              ),
+              child: Container(
+                decoration: const BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+                ),
+                child: SafeArea(
+                  top: false,
                   child: Column(
+                    mainAxisSize: MainAxisSize.min,
                     children: [
-                      // Header con degradado
-                      Container(
-                        decoration: const BoxDecoration(
-                          gradient: LinearGradient(
-                            colors: [
-                              Color(0xFFFF6FC8),
-                              Color(0xFFE91E8C),
-                              Color(0xFFA3145F)
-                            ],
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                          ),
-                          borderRadius: BorderRadius.vertical(
-                              top: Radius.circular(24)),
-                        ),
-                        padding: const EdgeInsets.fromLTRB(20, 14, 20, 18),
+                      // ── Handle + Header ──────────────────────────────────
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(20, 12, 20, 14),
                         child: Column(
                           children: [
                             Center(
                               child: Container(
-                                width: 40, height: 4,
+                                width: 36, height: 4,
                                 decoration: BoxDecoration(
-                                  color: Colors.white.withValues(alpha: 0.5),
+                                  color: const Color(0xFFE0E0E0),
                                   borderRadius: BorderRadius.circular(2),
                                 ),
                               ),
                             ),
-                            const SizedBox(height: 14),
+                            const SizedBox(height: 16),
                             Row(
                               children: [
-                                Text(
-                                  'Mi Carrito',
-                                  style: GoogleFonts.playfairDisplay(
-                                    fontSize: 22,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                                if (carrito.itemCount > 0) ...[
-                                  const SizedBox(width: 10),
+                                Text('Mi Carrito',
+                                    style: GoogleFonts.playfairDisplay(
+                                      fontSize: 24,
+                                      fontWeight: FontWeight.bold,
+                                      color: const Color(0xFF1A1A1A),
+                                    )),
+                                const Spacer(),
+                                if (carrito.itemCount > 0)
                                   Container(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 8, vertical: 3),
+                                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                                     decoration: BoxDecoration(
-                                      color:
-                                          Colors.white.withValues(alpha: 0.25),
-                                      borderRadius: BorderRadius.circular(12),
+                                      color: const Color(0xFFd65391).withValues(alpha: 0.1),
+                                      borderRadius: BorderRadius.circular(20),
                                     ),
                                     child: Text(
                                       '${carrito.itemCount} ítem${carrito.itemCount != 1 ? 's' : ''}',
                                       style: const TextStyle(
-                                          color: Colors.white,
+                                          color: Color(0xFFd65391),
                                           fontSize: 12,
-                                          fontWeight: FontWeight.w600),
+                                          fontWeight: FontWeight.w700),
                                     ),
                                   ),
-                                ],
                               ],
                             ),
                           ],
                         ),
                       ),
-                      // Lista de items o estado vacío
-                      Expanded(
-                        child: carrito.items.isEmpty
-                            ? const Center(
-                                child: Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Icon(Icons.shopping_bag_outlined, size: 64, color: Colors.grey),
-                                    SizedBox(height: 12),
-                                    Text('Tu carrito está vacío',
-                                        style: TextStyle(fontSize: 15, color: Colors.grey)),
+                      const Divider(height: 1, color: Color(0xFFF0F0F0)),
+
+                      // ── Lista o vacío ─────────────────────────────────────
+                      if (carrito.items.isEmpty)
+                        Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 40),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Container(
+                                width: 80, height: 80,
+                                decoration: const BoxDecoration(
+                                  color: Color(0xFFF5F5F5),
+                                  shape: BoxShape.circle,
+                                ),
+                                child: const Icon(Icons.shopping_bag_outlined,
+                                    size: 36, color: Color(0xFFCCCCCC)),
+                              ),
+                              const SizedBox(height: 16),
+                              const Text('Tu carrito está vacío',
+                                  style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w600,
+                                      color: Color(0xFF1A1A1A))),
+                              const SizedBox(height: 6),
+                              const Text('Agrega productos para continuar',
+                                  style: TextStyle(fontSize: 13, color: Color(0xFF888888))),
+                            ],
+                          ),
+                        )
+                      else
+                        Flexible(
+                          child: ListView.separated(
+                            shrinkWrap: true,
+                            padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
+                            itemCount: carrito.items.length,
+                            separatorBuilder: (_, __) => const SizedBox(height: 12),
+                            itemBuilder: (context, index) {
+                              final item = carrito.items[index];
+                              return Container(
+                                padding: const EdgeInsets.all(12),
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(16),
+                                  border: Border.all(color: const Color(0xFFF0F0F0)),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withValues(alpha: 0.04),
+                                      blurRadius: 10,
+                                      offset: const Offset(0, 2),
+                                    ),
                                   ],
                                 ),
-                              )
-                            : ListView.builder(
-                                controller: scrollController,
-                                padding: const EdgeInsets.symmetric(horizontal: 16),
-                                itemCount: carrito.items.length,
-                                itemBuilder: (context, index) {
-                                  final item = carrito.items[index];
-                                  return Padding(
-                                    padding: const EdgeInsets.only(bottom: 12),
-                                    child: Row(
-                                      children: [
-                                        // Imagen
-                                        ClipRRect(
-                                          borderRadius: BorderRadius.circular(8),
-                                          child: Image.network(
-                                            item.producto.imagen,
-                                            width: 70, height: 80,
-                                            fit: BoxFit.cover,
-                                            errorBuilder: (_, __, ___) => Container(
-                                              width: 70, height: 80,
-                                              color: Colors.grey[200],
-                                              child: const Icon(Icons.image_not_supported),
-                                            ),
+                                child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    // Imagen
+                                    ClipRRect(
+                                      borderRadius: BorderRadius.circular(10),
+                                      child: Image.network(
+                                        item.producto.imagen,
+                                        width: 78, height: 88,
+                                        fit: BoxFit.cover,
+                                        errorBuilder: (_, __, ___) => Container(
+                                          width: 78, height: 88,
+                                          decoration: BoxDecoration(
+                                            color: const Color(0xFFF5F5F5),
+                                            borderRadius: BorderRadius.circular(10),
                                           ),
+                                          child: const Icon(Icons.image_not_supported,
+                                              color: Color(0xFFCCCCCC)),
                                         ),
-                                        const SizedBox(width: 12),
-                                        // Info
-                                        Expanded(
-                                          child: Column(
+                                      ),
+                                    ),
+                                    const SizedBox(width: 12),
+                                    // Info
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Row(
                                             crossAxisAlignment: CrossAxisAlignment.start,
                                             children: [
-                                              Text(item.producto.nombre,
-                                                  style: const TextStyle(fontWeight: FontWeight.w600),
-                                                  maxLines: 2),
-                                              const SizedBox(height: 4),
-                                              Text('Talla: ${item.talla} • ${item.color}',
-                                                  style: TextStyle(fontSize: 12, color: Colors.grey[600])),
-                                              const SizedBox(height: 6),
-                                              Text(_formatCOP(item.producto.precio),
-                                                  style: const TextStyle(
-                                                      color: AppColors.primary, fontWeight: FontWeight.bold)),
+                                              Expanded(
+                                                child: Text(item.producto.nombre,
+                                                    maxLines: 2,
+                                                    overflow: TextOverflow.ellipsis,
+                                                    style: const TextStyle(
+                                                        fontSize: 13,
+                                                        fontWeight: FontWeight.w700,
+                                                        color: Color(0xFF1A1A1A))),
+                                              ),
+                                              const SizedBox(width: 4),
+                                              GestureDetector(
+                                                onTap: () => carrito.eliminarDelCarrito(item.id),
+                                                child: Container(
+                                                  padding: const EdgeInsets.all(4),
+                                                  decoration: BoxDecoration(
+                                                    color: const Color(0xFFF5F5F5),
+                                                    borderRadius: BorderRadius.circular(6),
+                                                  ),
+                                                  child: const Icon(Icons.close_rounded,
+                                                      size: 14, color: Color(0xFF888888)),
+                                                ),
+                                              ),
                                             ],
                                           ),
-                                        ),
-                                        // Cantidad
-                                        Column(
-                                          children: [
-                                            GestureDetector(
-                                              onTap: () => carrito.eliminarDelCarrito(item.id),
-                                              child: const Icon(Icons.close, size: 18, color: Colors.grey),
-                                            ),
-                                            const SizedBox(height: 8),
-                                            Row(
-                                              children: [
-                                                GestureDetector(
-                                                  onTap: () => carrito.actualizarCantidad(item.id, item.cantidad - 1),
-                                                  child: const Icon(Icons.remove_circle_outline,
-                                                      size: 22, color: AppColors.textSecondary),
+                                          const SizedBox(height: 4),
+                                          Wrap(
+                                            spacing: 6,
+                                            children: [
+                                              if (item.talla.isNotEmpty)
+                                                Container(
+                                                  padding: const EdgeInsets.symmetric(
+                                                      horizontal: 8, vertical: 2),
+                                                  decoration: BoxDecoration(
+                                                    color: const Color(0xFFF5F5F5),
+                                                    borderRadius: BorderRadius.circular(6),
+                                                  ),
+                                                  child: Text('Talla ${item.talla}',
+                                                      style: const TextStyle(
+                                                          fontSize: 11,
+                                                          color: Color(0xFF666666))),
                                                 ),
-                                                const SizedBox(width: 8),
-                                                Text('${item.cantidad}',
-                                                    style: const TextStyle(fontWeight: FontWeight.w600)),
-                                                const SizedBox(width: 8),
-                                                GestureDetector(
-                                                  onTap: () => carrito.actualizarCantidad(item.id, item.cantidad + 1),
-                                                  child: const Icon(Icons.add_circle_outline,
-                                                      size: 22, color: AppColors.primary),
+                                              if (item.color.isNotEmpty)
+                                                Container(
+                                                  padding: const EdgeInsets.symmetric(
+                                                      horizontal: 8, vertical: 2),
+                                                  decoration: BoxDecoration(
+                                                    color: const Color(0xFFF5F5F5),
+                                                    borderRadius: BorderRadius.circular(6),
+                                                  ),
+                                                  child: Text(item.color,
+                                                      style: const TextStyle(
+                                                          fontSize: 11,
+                                                          color: Color(0xFF666666))),
                                                 ),
-                                              ],
-                                            ),
-                                          ],
-                                        ),
-                                      ],
+                                            ],
+                                          ),
+                                          const SizedBox(height: 10),
+                                          Row(
+                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              Text(_formatCOP(item.producto.precio * item.cantidad),
+                                                  style: const TextStyle(
+                                                      fontSize: 15,
+                                                      fontWeight: FontWeight.w800,
+                                                      color: Color(0xFFd65391))),
+                                              Container(
+                                                decoration: BoxDecoration(
+                                                  color: const Color(0xFFF5F5F5),
+                                                  borderRadius: BorderRadius.circular(10),
+                                                ),
+                                                child: Row(
+                                                  children: [
+                                                    GestureDetector(
+                                                      onTap: () => carrito.actualizarCantidad(
+                                                          item.id, item.cantidad - 1),
+                                                      child: Container(
+                                                        width: 30, height: 30,
+                                                        alignment: Alignment.center,
+                                                        child: const Icon(Icons.remove_rounded,
+                                                            size: 16, color: Color(0xFF555555)),
+                                                      ),
+                                                    ),
+                                                    SizedBox(
+                                                      width: 28,
+                                                      child: Text('${item.cantidad}',
+                                                          textAlign: TextAlign.center,
+                                                          style: const TextStyle(
+                                                              fontWeight: FontWeight.w700,
+                                                              fontSize: 13)),
+                                                    ),
+                                                    GestureDetector(
+                                                      onTap: () => carrito.actualizarCantidad(
+                                                          item.id, item.cantidad + 1),
+                                                      child: Container(
+                                                        width: 30, height: 30,
+                                                        alignment: Alignment.center,
+                                                        decoration: BoxDecoration(
+                                                          color: const Color(0xFFd65391),
+                                                          borderRadius: BorderRadius.circular(10),
+                                                        ),
+                                                        child: const Icon(Icons.add_rounded,
+                                                            size: 16, color: Colors.white),
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
                                     ),
-                                  );
-                                },
-                              ),
-                      ),
-                      // Resumen y botón
+                                  ],
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+
+                      // ── Resumen + Botón ───────────────────────────────────
                       if (carrito.items.isNotEmpty)
-                        Padding(
-                          padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+                        Container(
+                          padding: EdgeInsets.fromLTRB(
+                              20, 16, 20, MediaQuery.of(context).viewPadding.bottom + 16),
+                          decoration: const BoxDecoration(
+                            color: Colors.white,
+                            border: Border(top: BorderSide(color: Color(0xFFF0F0F0))),
+                          ),
                           child: Column(
                             children: [
-                              const Divider(),
-                              const SizedBox(height: 8),
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
-                                  const Text('Subtotal:', style: TextStyle(color: AppColors.textSecondary)),
+                                  const Text('Subtotal',
+                                      style: TextStyle(fontSize: 13, color: Color(0xFF888888))),
                                   Text(_formatCOP(carrito.subtotal),
-                                      style: const TextStyle(fontWeight: FontWeight.w600)),
+                                      style: const TextStyle(
+                                          fontSize: 13, fontWeight: FontWeight.w600,
+                                          color: Color(0xFF1A1A1A))),
                                 ],
                               ),
                               const SizedBox(height: 6),
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
-                                  const Text('Envío:', style: TextStyle(color: AppColors.textSecondary)),
+                                  const Text('Envío',
+                                      style: TextStyle(fontSize: 13, color: Color(0xFF888888))),
                                   const Text('Gratis',
-                                      style: TextStyle(color: AppColors.success, fontWeight: FontWeight.w600)),
+                                      style: TextStyle(
+                                          fontSize: 13,
+                                          fontWeight: FontWeight.w600,
+                                          color: Color(0xFF2E7D32))),
                                 ],
                               ),
-                              const SizedBox(height: 10),
-                              const Divider(),
-                              const SizedBox(height: 10),
+                              const SizedBox(height: 14),
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
-                                  const Text('Total:',
-                                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                                  const Text('Total',
+                                      style: TextStyle(
+                                          fontSize: 17, fontWeight: FontWeight.w800,
+                                          color: Color(0xFF1A1A1A))),
                                   Text(_formatCOP(carrito.total),
                                       style: const TextStyle(
-                                          fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.primary)),
+                                          fontSize: 20,
+                                          fontWeight: FontWeight.w900,
+                                          color: Color(0xFFd65391))),
                                 ],
                               ),
                               const SizedBox(height: 16),
                               SizedBox(
                                 width: double.infinity,
-                                height: 52,
+                                height: 54,
                                 child: ElevatedButton(
                                   onPressed: () {
                                     Navigator.of(modalContext).pop();
-                                    Future.delayed(const Duration(milliseconds: 200), showCheckoutModal);
+                                    Future.delayed(
+                                        const Duration(milliseconds: 200), showCheckoutModal);
                                   },
                                   style: ElevatedButton.styleFrom(
-                                    backgroundColor: AppColors.black,
-                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                                    backgroundColor: const Color(0xFFd65391),
+                                    elevation: 0,
+                                    shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(16)),
                                   ),
-                                  child: const Text('Proceder al Pago',
-                                      style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                                  child: const Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Icon(Icons.lock_outline_rounded,
+                                          size: 18, color: Colors.white),
+                                      SizedBox(width: 8),
+                                      Text('Proceder al Pago',
+                                          style: TextStyle(
+                                              color: Colors.white,
+                                              fontWeight: FontWeight.w700,
+                                              fontSize: 15)),
+                                    ],
+                                  ),
                                 ),
                               ),
                             ],
@@ -1659,9 +1906,8 @@ class _ClienteViewState extends State<ClienteView>
                         ),
                     ],
                   ),
-                  ),
-                );
-              },
+                ),
+              ),
             );
           },
         );
