@@ -248,7 +248,7 @@ class OrderProvider extends ChangeNotifier {
     return Pedido(
       id: (j['pedidoID'] ?? j['PedidoID'] ?? 0).toString(),
       usuarioId: (j['clienteID'] ?? j['ClienteID'] ?? 0).toString(),
-      items: const [],
+      items: _parseDetalles(j['detalles'] ?? j['Detalles']),
       subtotal: _toDouble(j['subtotal'] ?? j['Subtotal'] ?? 0),
       envio: _toDouble(j['envio'] ?? j['Envio'] ?? 0),
       total: _toDouble(j['total'] ?? j['Total'] ?? 0),
@@ -267,6 +267,30 @@ class OrderProvider extends ChangeNotifier {
       emailCliente:
           (j['emailCliente'] ?? j['EmailCliente'])?.toString(),
     );
+  }
+
+  static List<CartItem> _parseDetalles(dynamic detalles) {
+    if (detalles == null || detalles is! List) return [];
+    return detalles.map((d) {
+      final item = Map<String, dynamic>.from(d as Map);
+      final imagen = (item['imagenProducto'] ?? item['ImagenProducto'] ?? '').toString();
+      return CartItem(
+        id: (item['pedidoDetalleID'] ?? item['PedidoDetalleID'] ?? 0).toString(),
+        producto: Producto(
+          id: (item['productoID'] ?? item['ProductoID'] ?? 0).toString(),
+          nombre: (item['productoNombre'] ?? item['ProductoNombre'] ?? '').toString(),
+          precio: _toDouble(item['precioUnitario'] ?? item['PrecioUnitario'] ?? 0),
+          imagen: imagen,
+          imagenes: imagen.isNotEmpty ? [imagen] : [],
+          tallas: [], colores: [], colorHex: {},
+          materiales: '', tipoProducto: '', subcategoria: '', categoria: '',
+          rating: 0, reviewCount: 0, descripcion: '',
+        ),
+        talla: (item['talla'] ?? item['Talla'] ?? '').toString(),
+        color: (item['color'] ?? item['Color'] ?? '').toString(),
+        cantidad: int.tryParse((item['cantidad'] ?? item['Cantidad'] ?? 1).toString()) ?? 1,
+      );
+    }).toList();
   }
 
   static double _toDouble(dynamic val) {
