@@ -299,7 +299,7 @@ class _PreferencesPageState extends State<PreferencesPage> {
             Switch(
               value: value,
               onChanged: onChanged,
-              activeColor: AppColors.primary,
+              activeThumbColor: AppColors.primary,
             )
           else
             const Icon(Icons.chevron_right, color: Colors.grey, size: 20),

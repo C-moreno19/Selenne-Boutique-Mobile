@@ -55,7 +55,7 @@ class _NewPasswordPageState extends State<NewPasswordPage> {
   InputDecoration _inputDeco(String label, {Widget? suffix}) =>
       InputDecoration(
         labelText: label,
-        labelStyle: TextStyle(color: _grey, fontSize: 14),
+        labelStyle: const TextStyle(color: _grey, fontSize: 14),
         prefixIcon:
             const Icon(Icons.lock_outlined, color: _grey, size: 20),
         suffixIcon: suffix,
@@ -188,7 +188,7 @@ class _NewPasswordPageState extends State<NewPasswordPage> {
                               ),
                             ),
                             const SizedBox(height: 8),
-                            Text(
+                            const Text(
                               'Debe tener al menos 6 caracteres.',
                               style: TextStyle(
                                   color: _grey, fontSize: 14, height: 1.5),

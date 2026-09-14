@@ -43,7 +43,7 @@ class Transaccion {
 /// Provider para gestionar pagos
 class PaymentProvider extends ChangeNotifier {
   List<TarjetaPago> _tarjetas = [];
-  List<Transaccion> _historialTransacciones = [];
+  final List<Transaccion> _historialTransacciones = [];
   String? _metodoPagoSeleccionado;
 
   List<TarjetaPago> get tarjetas => _tarjetas;

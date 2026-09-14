@@ -126,9 +126,9 @@ class _CategoriesPageState extends State<CategoriesPage> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       color: AppColors.white,
-      child: Row(
+      child: const Row(
         children: [
-          const Expanded(
+          Expanded(
             child: Center(
               child: Text(
                 'Categorías',
@@ -139,7 +139,7 @@ class _CategoriesPageState extends State<CategoriesPage> {
               ),
             ),
           ),
-          const SizedBox(width: 48),
+          SizedBox(width: 48),
         ],
       ),
     );

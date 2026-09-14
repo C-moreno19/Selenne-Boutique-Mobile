@@ -16,10 +16,10 @@ class TiendaProvider extends ChangeNotifier {
       'destacados'; // destacados, precioMenor, precioMayor, nombre
 
   // Filtros avanzados
-  List<String> _tallasSeleccionadas = [];
-  List<String> _coloresSeleccionados = [];
-  List<String> _materialesSeleccionados = [];
-  List<String> _tiposSeleccionados = [];
+  final List<String> _tallasSeleccionadas = [];
+  final List<String> _coloresSeleccionados = [];
+  final List<String> _materialesSeleccionados = [];
+  final List<String> _tiposSeleccionados = [];
   double _precioMin = 0;
   double _precioMax = 500;
 

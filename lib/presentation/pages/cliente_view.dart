@@ -518,14 +518,14 @@ class _ClienteViewState extends State<ClienteView>
                   value: tiendaProvider.ordenamiento,
                   isExpanded: true,
                   underline: Container(),
-                  items: [
-                    const DropdownMenuItem(
+                  items: const [
+                    DropdownMenuItem(
                         value: 'destacados', child: Text('Destacados')),
-                    const DropdownMenuItem(
+                    DropdownMenuItem(
                         value: 'precioMenor', child: Text('Precio menor')),
-                    const DropdownMenuItem(
+                    DropdownMenuItem(
                         value: 'precioMayor', child: Text('Precio mayor')),
-                    const DropdownMenuItem(
+                    DropdownMenuItem(
                         value: 'nombre', child: Text('Nombre')),
                   ],
                   onChanged: (value) {
@@ -548,14 +548,14 @@ class _ClienteViewState extends State<ClienteView>
         final todos = tiendaProvider.filteredProductos;
 
         if (todos.isEmpty) {
-          return Padding(
-            padding: const EdgeInsets.symmetric(vertical: 48),
+          return const Padding(
+            padding: EdgeInsets.symmetric(vertical: 48),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Icon(Icons.shopping_bag_outlined, size: 64, color: AppColors.textLight),
-                const SizedBox(height: 16),
-                const Text('No hay productos disponibles',
+                SizedBox(height: 16),
+                Text('No hay productos disponibles',
                     style: TextStyle(fontSize: 14, color: AppColors.textSecondary)),
               ],
             ),
@@ -1036,13 +1036,12 @@ class _ClienteViewState extends State<ClienteView>
                                       documento: _documentoCtrl.text.trim(),
                                       direccion: _direccionCtrl.text.trim(),
                                     );
-                                    if (mounted) {
-                                      setState(
-                                          () => _perfilGuardando = false);
-                                      AppSnackBar.show(context,
-                                          ok ? 'Perfil actualizado' : (auth.error ?? 'Error al guardar'),
-                                          type: ok ? SnackType.success : SnackType.error);
-                                    }
+                                    if (!context.mounted) return;
+                                    setState(
+                                        () => _perfilGuardando = false);
+                                    AppSnackBar.show(context,
+                                        ok ? 'Perfil actualizado' : (auth.error ?? 'Error al guardar'),
+                                        type: ok ? SnackType.success : SnackType.error);
                                   },
                             style: ElevatedButton.styleFrom(
                               backgroundColor: const Color(0xFF1A1A1A),
@@ -1113,18 +1112,17 @@ class _ClienteViewState extends State<ClienteView>
                                       actual: _passActualCtrl.text,
                                       nueva: _passNuevaCtrl.text,
                                     );
-                                    if (mounted) {
-                                      setState(
-                                          () => _passGuardando = false);
-                                      if (ok) {
-                                        _passActualCtrl.clear();
-                                        _passNuevaCtrl.clear();
-                                        _passConfirmCtrl.clear();
-                                      }
-                                      AppSnackBar.show(context,
-                                          ok ? 'Contraseña actualizada' : (auth.error ?? 'Error al cambiar contraseña'),
-                                          type: ok ? SnackType.success : SnackType.error);
+                                    if (!context.mounted) return;
+                                    setState(
+                                        () => _passGuardando = false);
+                                    if (ok) {
+                                      _passActualCtrl.clear();
+                                      _passNuevaCtrl.clear();
+                                      _passConfirmCtrl.clear();
                                     }
+                                    AppSnackBar.show(context,
+                                        ok ? 'Contraseña actualizada' : (auth.error ?? 'Error al cambiar contraseña'),
+                                        type: ok ? SnackType.success : SnackType.error);
                                   },
                             style: ElevatedButton.styleFrom(
                               backgroundColor: const Color(0xFF1A1A1A),
@@ -1843,12 +1841,12 @@ class _ClienteViewState extends State<ClienteView>
                                 ],
                               ),
                               const SizedBox(height: 6),
-                              Row(
+                              const Row(
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
-                                  const Text('Envío',
+                                  Text('Envío',
                                       style: TextStyle(fontSize: 13, color: Color(0xFF888888))),
-                                  const Text('Gratis',
+                                  Text('Gratis',
                                       style: TextStyle(
                                           fontSize: 13,
                                           fontWeight: FontWeight.w600,

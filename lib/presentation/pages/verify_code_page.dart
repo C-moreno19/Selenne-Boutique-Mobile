@@ -184,7 +184,7 @@ class _VerifyCodePageState extends State<VerifyCodePage> {
                             ),
                           ),
                           const SizedBox(height: 8),
-                          Text(
+                          const Text(
                             'Copia el código que recibiste en el correo y pégalo aquí.',
                             style: TextStyle(
                                 color: _grey, fontSize: 14, height: 1.5),
@@ -196,7 +196,7 @@ class _VerifyCodePageState extends State<VerifyCodePage> {
                               labelText: 'Código de recuperación',
                               hintText: 'Pega aquí el código del correo',
                               labelStyle:
-                                  TextStyle(color: _grey, fontSize: 14),
+                                  const TextStyle(color: _grey, fontSize: 14),
                               prefixIcon: const Icon(
                                   Icons.vpn_key_outlined,
                                   color: _grey,
@@ -256,13 +256,13 @@ class _VerifyCodePageState extends State<VerifyCodePage> {
                                       if (_seconds > 0)
                                         Text(
                                           'Reenviar código en ${_seconds}s',
-                                          style: TextStyle(
+                                          style: const TextStyle(
                                               color: _grey, fontSize: 13),
                                         )
                                       else
                                         TextButton(
                                           onPressed: _reenviar,
-                                          child: Text(
+                                          child: const Text(
                                             '¿No recibiste el código? Reenviar',
                                             style: TextStyle(
                                               color: _pink,

@@ -235,9 +235,9 @@ class OrdersPage extends StatelessWidget {
                                   ),
                                   const SizedBox(height: 8),
                                   // Indicador "ver detalle"
-                                  Row(
+                                  const Row(
                                     mainAxisAlignment: MainAxisAlignment.end,
-                                    children: const [
+                                    children: [
                                       Text('Ver detalle',
                                           style: TextStyle(
                                               fontSize: 12,

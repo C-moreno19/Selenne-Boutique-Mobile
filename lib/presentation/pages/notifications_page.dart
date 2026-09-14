@@ -123,7 +123,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
                             );
                             if (confirm == true) {
                               provider.limpiarTodas();
-                              if (!mounted) return;
+                              if (!context.mounted) return;
                               AppSnackBar.show(
                                   context, 'Notificaciones eliminadas',
                                   type: SnackType.info);

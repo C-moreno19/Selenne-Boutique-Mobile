@@ -139,10 +139,10 @@ class _MensajesPageState extends State<MensajesPage>
                   labelStyle: const TextStyle(
                       fontWeight: FontWeight.w600, fontSize: 13),
                   tabs: [
-                    Tab(
+                    const Tab(
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
-                        children: const [
+                        children: [
                           Text('Todos'),
                         ],
                       ),

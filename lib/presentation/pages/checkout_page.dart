@@ -230,12 +230,12 @@ class _CheckoutPageState extends State<CheckoutPage> {
                 ),
                 const SizedBox(height: 12),
                 const Divider(),
-                Row(
+                const Row(
                   children: [
-                    const Icon(Icons.local_shipping,
+                    Icon(Icons.local_shipping,
                         color: AppColors.primary, size: 18),
-                    const SizedBox(width: 8),
-                    const Column(
+                    SizedBox(width: 8),
+                    Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
@@ -268,21 +268,25 @@ class _CheckoutPageState extends State<CheckoutPage> {
           style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 12),
-        RadioListTile<int>(
-          value: 0,
+        RadioGroup<int>(
           groupValue: _selectedPaymentMethod,
           onChanged: (value) => setState(() => _selectedPaymentMethod = value ?? 0),
-          title: const Text('Tarjeta de Crédito/Débito'),
-          subtitle: const Text('Visa, Mastercard'),
-          activeColor: AppColors.primary,
-        ),
-        RadioListTile<int>(
-          value: 1,
-          groupValue: _selectedPaymentMethod,
-          onChanged: (value) => setState(() => _selectedPaymentMethod = value ?? 0),
-          title: const Text('Billetera Digital'),
-          subtitle: const Text('PayPal, Apple Pay'),
-          activeColor: AppColors.primary,
+          child: const Column(
+            children: [
+              RadioListTile<int>(
+                value: 0,
+                title: Text('Tarjeta de Crédito/Débito'),
+                subtitle: Text('Visa, Mastercard'),
+                activeColor: AppColors.primary,
+              ),
+              RadioListTile<int>(
+                value: 1,
+                title: Text('Billetera Digital'),
+                subtitle: Text('PayPal, Apple Pay'),
+                activeColor: AppColors.primary,
+              ),
+            ],
+          ),
         ),
       ],
     );

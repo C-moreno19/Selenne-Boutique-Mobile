@@ -507,7 +507,8 @@ class _ProfilePageState extends State<ProfilePage> {
           ),
           const SizedBox(height: 10),
           DropdownButtonFormField<String>(
-            value: _ciudad,
+            key: ValueKey(_ciudad),
+            initialValue: _ciudad,
             decoration: _deco('Ciudad', icon: Icons.location_city_outlined),
             hint: const Text('Selecciona una ciudad',
                 style: TextStyle(color: _grey, fontSize: 13)),

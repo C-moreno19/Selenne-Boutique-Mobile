@@ -173,7 +173,7 @@ class _PasswordChangedPageState extends State<PasswordChangedPage> {
                             textAlign: TextAlign.center,
                           ),
                           const SizedBox(height: 12),
-                          Text(
+                          const Text(
                             'Tu contraseña ha sido actualizada con éxito. Ya puedes iniciar sesión con tu nueva contraseña.',
                             style: TextStyle(
                                 color: _grey, fontSize: 14, height: 1.5),
@@ -204,7 +204,7 @@ class _PasswordChangedPageState extends State<PasswordChangedPage> {
                             child: Text(
                               'Redirigiendo en $_seconds segundos...',
                               style:
-                                  TextStyle(color: _grey, fontSize: 13),
+                                  const TextStyle(color: _grey, fontSize: 13),
                             ),
                           ),
                         ],

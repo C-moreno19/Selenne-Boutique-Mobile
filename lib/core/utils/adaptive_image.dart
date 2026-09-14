@@ -33,9 +33,8 @@ class AdaptiveImage extends StatelessWidget {
           ),
         );
 
-    // Defensive normalization: handle null/empty, backslashes and leading ./ or /
-    var s = src ?? '';
-    s = s.trim();
+    // Defensive normalization: handle empty, backslashes and leading ./ or /
+    var s = src.trim();
     s = s.replaceAll('\\', '/'); // Windows paths -> asset style
     if (s.startsWith('./')) s = s.substring(2);
     if (s.startsWith('/')) s = s.substring(1);

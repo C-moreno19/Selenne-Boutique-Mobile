@@ -383,11 +383,11 @@ class _CheckoutModalContentState extends State<CheckoutModalContent> {
                         ),
                       )),
                       const Divider(height: 20),
-                      Row(
+                      const Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          const Text('Envío:', style: TextStyle(color: _grey)),
-                          const Text('Gratis',
+                          Text('Envío:', style: TextStyle(color: _grey)),
+                          Text('Gratis',
                               style: TextStyle(color: Colors.green, fontWeight: FontWeight.w600)),
                         ],
                       ),
@@ -827,7 +827,7 @@ class _CheckoutModalContentState extends State<CheckoutModalContent> {
               child: _comprobante == null
                   ? Column(
                       children: [
-                        Icon(Icons.upload_file,
+                        const Icon(Icons.upload_file,
                             color: _grey, size: 28),
                         const SizedBox(height: 6),
                         const Text('Subir comprobante de pago',
@@ -877,12 +877,12 @@ class _CheckoutModalContentState extends State<CheckoutModalContent> {
               border: Border.all(
                   color: Colors.orange.withValues(alpha:0.3)),
             ),
-            child: Row(
+            child: const Row(
               children: [
-                const Icon(Icons.info_outline,
+                Icon(Icons.info_outline,
                     color: Colors.orange, size: 16),
-                const SizedBox(width: 8),
-                const Expanded(
+                SizedBox(width: 8),
+                Expanded(
                   child: Text(
                     'Tu pedido quedará pendiente hasta que el administrador confirme el pago.',
                     style: TextStyle(fontSize: 11),

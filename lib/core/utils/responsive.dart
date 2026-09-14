@@ -41,7 +41,6 @@ class Responsive {
 
   /// Calcula el padding responsivo
   static EdgeInsets getPadding(BuildContext context) {
-    final width = getWidth(context);
     if (isMobile(context)) {
       return const EdgeInsets.all(12.0);
     } else if (isTablet(context)) {
@@ -51,10 +50,16 @@ class Responsive {
     }
   }
 
-  /// Calcula el tamaño de fuente responsivo
+  /// Calcula el tamaño de fuente responsivo, acotado por breakpoint para que
+  /// no crezca sin límite en tablet/desktop/web.
   static double getFontSize(BuildContext context, double baseSize) {
-    final width = getWidth(context);
-    return baseSize * (width / 400); // Base reference: 400px
+    if (isMobile(context)) {
+      return baseSize;
+    } else if (isTablet(context)) {
+      return baseSize * 1.1;
+    } else {
+      return baseSize * 1.2;
+    }
   }
 
   /// Retorna el padding horizontal responsivo

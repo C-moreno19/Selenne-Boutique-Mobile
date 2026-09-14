@@ -1263,7 +1263,7 @@ class CarritoView extends StatelessWidget {
     return Consumer<CarritoProvider>(
       builder: (context, carritoProvider, _) {
         if (carritoProvider.items.isEmpty) {
-          return Center(
+          return const Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -1272,8 +1272,8 @@ class CarritoView extends StatelessWidget {
                   size: 64,
                   color: AppColors.textLight,
                 ),
-                const SizedBox(height: 16),
-                const Text(
+                SizedBox(height: 16),
+                Text(
                   'Tu carrito está vacío',
                   style: TextStyle(
                     fontSize: 16,
@@ -1433,7 +1433,7 @@ class CarritoView extends StatelessWidget {
             ),
             Container(
               padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 border: Border(top: BorderSide(color: AppColors.borderLight)),
               ),
               child: Column(
