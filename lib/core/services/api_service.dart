@@ -5,12 +5,21 @@ import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-/// URL base del backend según la plataforma:
-/// - Web / Chrome      → http://localhost:5000
-/// - Emulador Android  → http://10.0.2.2:5000
-/// - Simulador iOS     → http://localhost:5000
-/// - Dispositivo real  → cambiar por la IP local de tu PC
+/// TEMPORAL: el backend local (Selenne-Boutique-Backend) todavia no tiene
+/// configurada la contraseña real de Supabase en appsettings.Development.json
+/// (sigue con el placeholder REEMPLAZA_CON_TU_NUEVA_CONTRASEÑA_DE_SUPABASE),
+/// asi que localhost:5000 no puede autenticar contra la base de datos real.
+/// Mientras eso no se arregle, todas las plataformas usan el backend de
+/// produccion en Render. OJO: cualquier prueba (login, pedidos, perfil)
+/// toca datos reales, no una base de prueba.
+/// Cuando se complete esa contraseña, volver a la logica por plataforma
+/// (web/Chrome, 10.0.2.2 en emulador Android, localhost en iOS/desktop).
+const bool _useBackendLocal = false;
+
 String get kBaseUrl {
+  const renderUrl = 'https://selenne-boutique-backend.onrender.com';
+  if (!_useBackendLocal) return renderUrl;
+
   if (kIsWeb) {
     // Usa el mismo host desde donde se abrió la app web.
     // Así funciona tanto en localhost como desde otro dispositivo en la red.
