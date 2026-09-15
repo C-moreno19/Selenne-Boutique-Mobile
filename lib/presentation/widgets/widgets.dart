@@ -375,7 +375,7 @@ class _DetalleProductoModalState extends State<DetalleProductoModal> {
                           ],
                         ),
                         child: Icon(
-                          isFav ? Icons.favorite : Icons.favorite_border,
+                          isFav ? Icons.favorite_rounded : Icons.favorite_border_rounded,
                           color: isFav ? _pink : const Color(0xFFAAAAAA),
                           size: 18,
                         ),
@@ -403,7 +403,7 @@ class _DetalleProductoModalState extends State<DetalleProductoModal> {
                             offset: Offset(0, 2))
                       ],
                     ),
-                    child: const Icon(Icons.close,
+                    child: const Icon(Icons.close_rounded,
                         size: 16, color: Color(0xFF666666)),
                   ),
                 ),
@@ -449,8 +449,8 @@ class _DetalleProductoModalState extends State<DetalleProductoModal> {
                     children: [
                       Expanded(
                         child: Text(p.nombre,
-                            style: const TextStyle(
-                                fontSize: 16,
+                            style: GoogleFonts.playfairDisplay(
+                                fontSize: 17,
                                 fontWeight: FontWeight.w700,
                                 color: _black)),
                       ),
