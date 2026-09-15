@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../providers/order_provider.dart';
@@ -592,10 +593,14 @@ class OrdersPage extends StatelessWidget {
                     children: [
                       ClipRRect(
                         borderRadius: BorderRadius.circular(8),
-                        child: Image.network(
-                          item.producto.imagen,
+                        child: CachedNetworkImage(
+                          imageUrl: item.producto.imagen,
                           width: 50, height: 54, fit: BoxFit.cover,
-                          errorBuilder: (_, __, ___) => Container(
+                          placeholder: (_, __) => Container(
+                            width: 50, height: 54,
+                            color: const Color(0xFFF5F5F5),
+                          ),
+                          errorWidget: (_, __, ___) => Container(
                             width: 50, height: 54,
                             decoration: BoxDecoration(
                               color: const Color(0xFFF5F5F5),

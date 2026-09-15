@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../../core/models/models.dart';
@@ -63,17 +64,18 @@ class ProductCard extends StatelessWidget {
                       ),
                       child: AspectRatio(
                         aspectRatio: 1.2,
-                        child: Image.network(
-                          producto.imagen,
+                        child: CachedNetworkImage(
+                          imageUrl: producto.imagen,
                           width: double.infinity,
                           fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) {
-                            return Container(
-                              color: AppColors.lightGray,
-                              child: const Center(
-                                  child: Icon(Icons.image_not_supported)),
-                            );
-                          },
+                          placeholder: (context, url) => Container(
+                            color: AppColors.lightGray,
+                          ),
+                          errorWidget: (context, url, error) => Container(
+                            color: AppColors.lightGray,
+                            child: const Center(
+                                child: Icon(Icons.image_not_supported)),
+                          ),
                         ),
                       ),
                     ),
@@ -312,10 +314,12 @@ class _DetalleProductoModalState extends State<DetalleProductoModal> {
                   controller: _pageController,
                   onPageChanged: (i) => setState(() => _imagenActual = i),
                   itemCount: p.imagenes.length,
-                  itemBuilder: (_, i) => Image.network(
-                    p.imagenes[i],
+                  itemBuilder: (_, i) => CachedNetworkImage(
+                    imageUrl: p.imagenes[i],
                     fit: BoxFit.cover,
-                    errorBuilder: (_, __, ___) => Container(
+                    placeholder: (_, __) =>
+                        Container(color: const Color(0xFFF0F0F0)),
+                    errorWidget: (_, __, ___) => Container(
                       color: const Color(0xFFF0F0F0),
                       child: const Icon(Icons.image_not_supported,
                           size: 48, color: Color(0xFFCCCCCC)),
@@ -1344,19 +1348,22 @@ class CarritoView extends StatelessWidget {
                               topLeft: Radius.circular(8),
                               bottomLeft: Radius.circular(8),
                             ),
-                            child: Image.network(
-                              item.producto.imagen,
+                            child: CachedNetworkImage(
+                              imageUrl: item.producto.imagen,
                               width: 80,
                               height: 80,
                               fit: BoxFit.cover,
-                              errorBuilder: (context, error, stackTrace) {
-                                return Container(
-                                  width: 80,
-                                  height: 80,
-                                  color: AppColors.lightGray,
-                                  child: const Icon(Icons.image_not_supported),
-                                );
-                              },
+                              placeholder: (context, url) => Container(
+                                width: 80,
+                                height: 80,
+                                color: AppColors.lightGray,
+                              ),
+                              errorWidget: (context, url, error) => Container(
+                                width: 80,
+                                height: 80,
+                                color: AppColors.lightGray,
+                                child: const Icon(Icons.image_not_supported),
+                              ),
                             ),
                           ),
                           Expanded(

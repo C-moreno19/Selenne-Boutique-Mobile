@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import '../../core/utils/snackbar.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -359,11 +360,15 @@ class _CheckoutModalContentState extends State<CheckoutModalContent> {
                           children: [
                             ClipRRect(
                               borderRadius: BorderRadius.circular(6),
-                              child: Image.network(
-                                item.producto.imagen,
+                              child: CachedNetworkImage(
+                                imageUrl: item.producto.imagen,
                                 width: 48, height: 54,
                                 fit: BoxFit.cover,
-                                errorBuilder: (_, __, ___) => Container(
+                                placeholder: (_, __) => Container(
+                                  width: 48, height: 54,
+                                  color: const Color(0xFFF5F5F5),
+                                ),
+                                errorWidget: (_, __, ___) => Container(
                                   width: 48, height: 54,
                                   color: const Color(0xFFF5F5F5),
                                   child: const Icon(Icons.image_not_supported, size: 20),

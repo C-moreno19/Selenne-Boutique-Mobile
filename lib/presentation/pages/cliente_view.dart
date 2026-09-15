@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../../core/themes/colors.dart';
@@ -1721,11 +1722,15 @@ class _ClienteViewState extends State<ClienteView>
                                     // Imagen
                                     ClipRRect(
                                       borderRadius: BorderRadius.circular(10),
-                                      child: Image.network(
-                                        item.producto.imagen,
+                                      child: CachedNetworkImage(
+                                        imageUrl: item.producto.imagen,
                                         width: 78, height: 88,
                                         fit: BoxFit.cover,
-                                        errorBuilder: (_, __, ___) => Container(
+                                        placeholder: (_, __) => Container(
+                                          width: 78, height: 88,
+                                          color: const Color(0xFFF5F5F5),
+                                        ),
+                                        errorWidget: (_, __, ___) => Container(
                                           width: 78, height: 88,
                                           decoration: BoxDecoration(
                                             color: const Color(0xFFF5F5F5),

@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class AdaptiveImage extends StatelessWidget {
   final String src;
@@ -48,25 +49,22 @@ class AdaptiveImage extends StatelessWidget {
     }
 
     if (s.startsWith('http') || s.startsWith('https')) {
-      return Image.network(
-        s,
+      return CachedNetworkImage(
+        imageUrl: s,
         width: width,
         height: height,
         fit: fit,
-        loadingBuilder: (context, child, loadingProgress) {
-          if (loadingProgress == null) return child;
-          return Container(
-            color: Colors.grey.shade200,
-            width: width,
-            height: height,
-            child: Center(
-              child: CircularProgressIndicator(
-                color: Theme.of(context).primaryColor,
-              ),
+        placeholder: (context, url) => Container(
+          color: Colors.grey.shade200,
+          width: width,
+          height: height,
+          child: Center(
+            child: CircularProgressIndicator(
+              color: Theme.of(context).primaryColor,
             ),
-          );
-        },
-        errorBuilder: (c, e, s) => placeholderWidget,
+          ),
+        ),
+        errorWidget: (c, url, e) => placeholderWidget,
       );
     }
 
