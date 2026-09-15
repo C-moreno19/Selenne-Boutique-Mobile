@@ -29,9 +29,14 @@ class MensajesPage extends StatefulWidget {
 class _MensajesPageState extends State<MensajesPage>
     with SingleTickerProviderStateMixin {
   static const _pink = Color(0xFFD65391);
-  static const _darkPink = Color(0xFF9E3A6B);
-  static const _lightPink = Color(0xFFE8A0C0);
+  static const _darkStart = Color(0xFF2D1B24);
+  static const _midMaroon = Color(0xFF7A3350);
   static const _black = Color(0xFF1A1A1A);
+  static const _gradient = LinearGradient(
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    colors: [_darkStart, _midMaroon, _pink],
+  );
 
   late List<Mensaje> _mensajes;
   late TabController _tabController;
@@ -91,11 +96,7 @@ class _MensajesPageState extends State<MensajesPage>
             flexibleSpace: FlexibleSpaceBar(
               background: Container(
                 decoration: const BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [_lightPink, _pink, _darkPink],
-                  ),
+                  gradient: _gradient,
                 ),
                 child: SafeArea(
                   child: Padding(
@@ -129,7 +130,7 @@ class _MensajesPageState extends State<MensajesPage>
             bottom: PreferredSize(
               preferredSize: const Size.fromHeight(46),
               child: Container(
-                color: _darkPink,
+                color: _midMaroon,
                 child: TabBar(
                   controller: _tabController,
                   indicatorColor: Colors.white,
@@ -450,20 +451,27 @@ class _MensajesPageState extends State<MensajesPage>
                   height: 1.6),
             ),
             const SizedBox(height: 28),
-            SizedBox(
+            Container(
               width: double.infinity,
               height: 50,
+              decoration: BoxDecoration(
+                gradient: _gradient,
+                borderRadius: BorderRadius.circular(12),
+              ),
               child: ElevatedButton(
                 onPressed: () => Navigator.pop(ctx),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: _black,
+                  backgroundColor: Colors.transparent,
+                  shadowColor: Colors.transparent,
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12)),
                   elevation: 0,
                 ),
                 child: const Text('Cerrar',
                     style: TextStyle(
-                        fontWeight: FontWeight.w600, fontSize: 15)),
+                        fontWeight: FontWeight.w600,
+                        fontSize: 15,
+                        color: Colors.white)),
               ),
             ),
           ],
