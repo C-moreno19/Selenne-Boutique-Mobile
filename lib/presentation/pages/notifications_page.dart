@@ -13,8 +13,8 @@ class NotificationsPage extends StatefulWidget {
 
 class _NotificationsPageState extends State<NotificationsPage> {
   static const _pink = Color(0xFFD65391);
-  static const _darkPink = Color(0xFF9E3A6B);
-  static const _lightPink = Color(0xFFE8A0C0);
+  static const _darkStart = Color(0xFF2D1B24);
+  static const _midMaroon = Color(0xFF7A3350);
   static const _black = Color(0xFF1A1A1A);
 
   @override
@@ -50,7 +50,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
                         gradient: LinearGradient(
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
-                          colors: [_lightPink, _pink, _darkPink],
+                          colors: [_darkStart, _midMaroon, _pink],
                         ),
                       ),
                       child: SafeArea(
