@@ -884,10 +884,20 @@ class _ClienteViewState extends State<ClienteView>
                   Container(
                     width: 60,
                     height: 60,
-                    decoration: BoxDecoration(
+                    decoration: const BoxDecoration(
                       shape: BoxShape.circle,
-                      color: const Color(0xFFF0F0F0),
-                      border: Border.all(color: const Color(0xFFE0E0E0)),
+                      gradient: LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: [Color(0xFF2D1B24), Color(0xFF7A3350), AppColors.primary],
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Color(0x33D65391),
+                          blurRadius: 10,
+                          offset: Offset(0, 3),
+                        ),
+                      ],
                     ),
                     child: Center(
                       child: Text(
@@ -897,7 +907,7 @@ class _ClienteViewState extends State<ClienteView>
                         style: GoogleFonts.playfairDisplay(
                           fontSize: 26,
                           fontWeight: FontWeight.bold,
-                          color: const Color(0xFF1A1A1A),
+                          color: Colors.white,
                         ),
                       ),
                     ),
@@ -1033,8 +1043,17 @@ class _ClienteViewState extends State<ClienteView>
                             ),
                           ),
                         const SizedBox(height: 20),
-                        SizedBox(
+                        Container(
                           height: 50,
+                          decoration: BoxDecoration(
+                            gradient: _perfilGuardando
+                                ? null
+                                : const LinearGradient(
+                                    colors: [Color(0xFF2D1B24), Color(0xFF7A3350), AppColors.primary],
+                                  ),
+                            color: _perfilGuardando ? const Color(0xFFDDDDDD) : null,
+                            borderRadius: BorderRadius.circular(10),
+                          ),
                           child: ElevatedButton(
                             onPressed: _perfilGuardando
                                 ? null
@@ -1056,7 +1075,10 @@ class _ClienteViewState extends State<ClienteView>
                                         type: ok ? SnackType.success : SnackType.error);
                                   },
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFF1A1A1A),
+                              backgroundColor: Colors.transparent,
+                              shadowColor: Colors.transparent,
+                              foregroundColor: Colors.white,
+                              disabledForegroundColor: const Color(0xFF999999),
                               shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(10)),
                               elevation: 0,
@@ -1104,8 +1126,17 @@ class _ClienteViewState extends State<ClienteView>
                               'Confirmar Contraseña', Icons.lock_outline),
                         ),
                         const SizedBox(height: 20),
-                        SizedBox(
+                        Container(
                           height: 50,
+                          decoration: BoxDecoration(
+                            gradient: _passGuardando
+                                ? null
+                                : const LinearGradient(
+                                    colors: [Color(0xFF2D1B24), Color(0xFF7A3350), AppColors.primary],
+                                  ),
+                            color: _passGuardando ? const Color(0xFFDDDDDD) : null,
+                            borderRadius: BorderRadius.circular(10),
+                          ),
                           child: ElevatedButton(
                             onPressed: _passGuardando
                                 ? null
@@ -1137,7 +1168,10 @@ class _ClienteViewState extends State<ClienteView>
                                         type: ok ? SnackType.success : SnackType.error);
                                   },
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFF1A1A1A),
+                              backgroundColor: Colors.transparent,
+                              shadowColor: Colors.transparent,
+                              foregroundColor: Colors.white,
+                              disabledForegroundColor: const Color(0xFF999999),
                               shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(10)),
                               elevation: 0,
