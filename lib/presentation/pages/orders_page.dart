@@ -7,9 +7,14 @@ class OrdersPage extends StatelessWidget {
   const OrdersPage({super.key});
 
   static const _pink = Color(0xFFD65391);
-  static const _darkPink = Color(0xFF9E3A6B);
-  static const _lightPink = Color(0xFFE8A0C0);
+  static const _darkStart = Color(0xFF2D1B24);
+  static const _midMaroon = Color(0xFF7A3350);
   static const _black = Color(0xFF1A1A1A);
+  static const _gradient = LinearGradient(
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    colors: [_darkStart, _midMaroon, _pink],
+  );
 
   String _cop(double v) =>
       '\$${v.toStringAsFixed(0).replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (m) => '${m[1]}.')}';
@@ -64,11 +69,7 @@ class OrdersPage extends StatelessWidget {
             flexibleSpace: FlexibleSpaceBar(
               background: Container(
                 decoration: const BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [_lightPink, _pink, _darkPink],
-                  ),
+                  gradient: _gradient,
                 ),
                 child: SafeArea(
                   child: Padding(
@@ -304,11 +305,7 @@ class OrdersPage extends StatelessWidget {
                 width: double.infinity,
                 padding: const EdgeInsets.fromLTRB(18, 14, 18, 18),
                 decoration: const BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [_lightPink, _pink, _darkPink],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
+                  gradient: _gradient,
                 ),
                 child: Row(
                   children: [
@@ -379,12 +376,18 @@ class OrdersPage extends StatelessWidget {
                     _buildFechasCard(p),
                     const SizedBox(height: 20),
                     // Botón cerrar
-                    SizedBox(
-                      width: double.infinity, height: 50,
+                    Container(
+                      width: double.infinity,
+                      height: 50,
+                      decoration: BoxDecoration(
+                        gradient: _gradient,
+                        borderRadius: BorderRadius.circular(14),
+                      ),
                       child: ElevatedButton(
                         onPressed: () => Navigator.pop(context),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: _pink,
+                          backgroundColor: Colors.transparent,
+                          shadowColor: Colors.transparent,
                           shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(14)),
                           elevation: 0,
