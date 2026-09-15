@@ -21,6 +21,12 @@ class ProductCard extends StatelessWidget {
   static String _copCard(double v) =>
       '\$${v.toStringAsFixed(0).replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (m) => '${m[1]}.')}';
 
+  static const _gradient = LinearGradient(
+    begin: Alignment.centerLeft,
+    end: Alignment.centerRight,
+    colors: [Color(0xFF2D1B24), Color(0xFF7A3350), AppColors.primary],
+  );
+
   @override
   Widget build(BuildContext context) {
     return Consumer<FavoritosProvider>(
@@ -32,7 +38,10 @@ class ProductCard extends StatelessWidget {
           child: Container(
             decoration: BoxDecoration(
               color: Colors.white,
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(
+                color: AppColors.primary.withValues(alpha: 0.25),
+              ),
               boxShadow: [
                 BoxShadow(
                   color: AppColors.shadow.withValues(alpha: 0.1),
@@ -44,13 +53,13 @@ class ProductCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Imagen con badge de descuento y favorito
+                // Imagen con badges de descuento, detalle y favorito
                 Stack(
                   children: [
                     ClipRRect(
                       borderRadius: const BorderRadius.only(
-                        topLeft: Radius.circular(12),
-                        topRight: Radius.circular(12),
+                        topLeft: Radius.circular(15),
+                        topRight: Radius.circular(15),
                       ),
                       child: AspectRatio(
                         aspectRatio: 1.2,
@@ -79,7 +88,7 @@ class ProductCard extends StatelessWidget {
                           decoration: BoxDecoration(
                             color: producto.hayDescuento
                                 ? AppColors.error
-                                : const Color(0xFFD65391),
+                                : AppColors.primary,
                             borderRadius: BorderRadius.circular(6),
                           ),
                           child: Text(
@@ -94,9 +103,45 @@ class ProductCard extends StatelessWidget {
                           ),
                         ),
                       ),
-                    // Botón Favorito
+                    // Insignia "Detalle"
                     Positioned(
                       top: 8,
+                      right: 8,
+                      child: Container(
+                        padding:
+                            const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+                        decoration: BoxDecoration(
+                          gradient: _gradient,
+                          borderRadius: BorderRadius.circular(20),
+                          boxShadow: [
+                            BoxShadow(
+                              color: AppColors.shadow.withValues(alpha: 0.2),
+                              blurRadius: 4,
+                            ),
+                          ],
+                        ),
+                        child: const Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.remove_red_eye_outlined,
+                                size: 12, color: Colors.white),
+                            SizedBox(width: 3),
+                            Text(
+                              'DETALLE',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 9,
+                                letterSpacing: 0.4,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    // Botón Favorito
+                    Positioned(
+                      bottom: 8,
                       right: 8,
                       child: GestureDetector(
                         onTap: () {
@@ -134,77 +179,69 @@ class ProductCard extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              producto.nombre,
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(
-                                fontSize: 12,
-                                fontWeight: FontWeight.w600,
-                                color: AppColors.textPrimary,
-                              ),
+                        Text(
+                          producto.nombre,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w700,
+                            letterSpacing: 0.3,
+                            color: AppColors.textPrimary,
+                          ),
+                        ),
+                        const SizedBox(height: 6),
+                        // Precio
+                        if (producto.hayDescuento)
+                          Text(
+                            _copCard(producto.precioOriginal!),
+                            style: const TextStyle(
+                              fontSize: 10,
+                              color: AppColors.textLight,
+                              decoration: TextDecoration.lineThrough,
                             ),
-                            const SizedBox(height: 4),
-                            // Rating
-                            Row(
-                              children: [
-                                const Icon(Icons.star,
-                                    size: 14, color: Colors.amber),
-                                const SizedBox(width: 4),
-                                Text(
-                                  '${producto.rating} (${producto.reviewCount})',
-                                  style: const TextStyle(
-                                    fontSize: 10,
-                                    color: AppColors.textSecondary,
+                          ),
+                        Text(
+                          _copCard(producto.precio),
+                          style: const TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.primary,
+                          ),
+                        ),
+                        // Círculos de color
+                        if (producto.colores.isNotEmpty) ...[
+                          const SizedBox(height: 6),
+                          Row(
+                            children: producto.colores.take(5).map((c) {
+                              final hex = producto.colorHex[c] ?? '#000000';
+                              final hexClean = hex.replaceFirst('#', '');
+                              final colorVal =
+                                  int.tryParse('0xFF$hexClean') ?? 0xFF000000;
+                              final color = Color(colorVal);
+                              return Padding(
+                                padding: const EdgeInsets.only(right: 5),
+                                child: Container(
+                                  width: 14,
+                                  height: 14,
+                                  decoration: BoxDecoration(
+                                    color: color,
+                                    shape: BoxShape.circle,
+                                    border: Border.all(
+                                        color: Colors.white, width: 1.5),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: AppColors.shadow
+                                            .withValues(alpha: 0.15),
+                                        blurRadius: 1.5,
+                                      ),
+                                    ],
                                   ),
                                 ),
-                              ],
-                            ),
-                          ],
-                        ),
-                        // Precio y botón
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            if (producto.hayDescuento)
-                              Text(
-                                _copCard(producto.precioOriginal!),
-                                style: const TextStyle(
-                                  fontSize: 10,
-                                  color: AppColors.textLight,
-                                  decoration: TextDecoration.lineThrough,
-                                ),
-                              ),
-                            Text(
-                              _copCard(producto.precio),
-                              style: const TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.bold,
-                                color: AppColors.primary,
-                              ),
-                            ),
-                            const SizedBox(height: 8),
-                            SizedBox(
-                              height: 36,
-                              child: ElevatedButton(
-                                onPressed: onTap,
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.black,
-                                  shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(8)),
-                                ),
-                                child: const Text('Ver Detalles',
-                                    style: TextStyle(
-                                        fontSize: 12,
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.w600)),
-                              ),
-                            ),
-                          ],
-                        ),
+                              );
+                            }).toList(),
+                          ),
+                        ],
                       ],
                     ),
                   ),

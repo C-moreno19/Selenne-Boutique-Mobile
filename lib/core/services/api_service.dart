@@ -14,7 +14,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 /// toca datos reales, no una base de prueba.
 /// Cuando se complete esa contraseña, volver a la logica por plataforma
 /// (web/Chrome, 10.0.2.2 en emulador Android, localhost en iOS/desktop).
-const bool _useBackendLocal = false;
+const bool _useBackendLocal = false; // ver nota arriba
 
 String get kBaseUrl {
   const renderUrl = 'https://selenne-boutique-backend.onrender.com';
