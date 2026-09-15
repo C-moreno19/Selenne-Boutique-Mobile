@@ -108,43 +108,40 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                             ),
                           ),
                           const SizedBox(height: 20),
-                          // Logo con anillo
+                          // Logo con anillo fino elegante
                           Container(
-                            width: 110,
-                            height: 110,
+                            width: 106,
+                            height: 106,
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
-                              color: Colors.white.withValues(alpha: 0.35),
+                              gradient: const LinearGradient(
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                                colors: [
+                                  Color(0xFFFFF0F8),
+                                  Color(0xFFEE80C0),
+                                  Color(0xFFD04898),
+                                ],
+                                stops: [0.0, 0.55, 1.0],
+                              ),
+                              border: Border.all(
+                                color: Colors.white.withValues(alpha: 0.7),
+                                width: 2,
+                              ),
                               boxShadow: [
                                 BoxShadow(
                                   color: const Color(0xFFD65391)
-                                      .withValues(alpha: 0.22),
-                                  blurRadius: 28,
-                                  spreadRadius: 2,
-                                  offset: const Offset(0, 10),
+                                      .withValues(alpha: 0.3),
+                                  blurRadius: 24,
+                                  spreadRadius: 1,
+                                  offset: const Offset(0, 8),
                                 ),
                               ],
                             ),
-                            padding: const EdgeInsets.all(7),
-                            child: Container(
-                              decoration: const BoxDecoration(
-                                shape: BoxShape.circle,
-                                gradient: LinearGradient(
-                                  begin: Alignment.topLeft,
-                                  end: Alignment.bottomRight,
-                                  colors: [
-                                    Color(0xFFFFF0F8),
-                                    Color(0xFFEE80C0),
-                                    Color(0xFFD04898),
-                                  ],
-                                  stops: [0.0, 0.55, 1.0],
-                                ),
-                              ),
-                              padding: const EdgeInsets.all(16),
-                              child: Image.asset(
-                                'assets/icons/logo_selenne.png',
-                                fit: BoxFit.contain,
-                              ),
+                            padding: const EdgeInsets.all(18),
+                            child: Image.asset(
+                              'assets/icons/logo_selenne.png',
+                              fit: BoxFit.contain,
                             ),
                           ),
                           const SizedBox(height: 18),
@@ -154,8 +151,8 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                             children: [
                               Text(
                                 'Recuperar Contraseña',
-                                style: GoogleFonts.cormorantGaramond(
-                                  fontSize: 28,
+                                style: GoogleFonts.playfairDisplay(
+                                  fontSize: 26,
                                   fontWeight: FontWeight.w700,
                                   color: Colors.white,
                                   letterSpacing: 0.3,
@@ -209,8 +206,8 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                               Expanded(
                                 child: Text(
                                   '¿Olvidaste tu contraseña?',
-                                  style: GoogleFonts.cormorantGaramond(
-                                    fontSize: 22,
+                                  style: GoogleFonts.playfairDisplay(
+                                    fontSize: 20,
                                     fontWeight: FontWeight.w700,
                                     color: _dark,
                                     letterSpacing: 0.2,

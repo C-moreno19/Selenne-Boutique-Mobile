@@ -119,6 +119,10 @@ class _RegisterPageState extends State<RegisterPage> {
                               end: Alignment.bottomRight,
                               colors: [Color(0xFFFFDDEE), Color(0xFFE060A0)],
                             ),
+                            border: Border.all(
+                              color: Colors.white.withValues(alpha: 0.7),
+                              width: 1.5,
+                            ),
                             boxShadow: [
                               BoxShadow(
                                 color: const Color(0xFFD65391).withValues(alpha: 0.25),
@@ -159,8 +163,8 @@ class _RegisterPageState extends State<RegisterPage> {
                               children: [
                                 Text(
                                   'Únete a nosotras',
-                                  style: GoogleFonts.cormorantGaramond(
-                                    fontSize: 30,
+                                  style: GoogleFonts.playfairDisplay(
+                                    fontSize: 28,
                                     fontWeight: FontWeight.w700,
                                     color: _dark,
                                     letterSpacing: 0.4,
@@ -377,7 +381,7 @@ class _RegisterPageState extends State<RegisterPage> {
           prefixIcon: const Icon(Icons.lock_outline_rounded, color: _pink, size: 22),
           suffixIcon: IconButton(
             icon: Icon(
-              obscure ? Icons.visibility_off_outlined : Icons.visibility_outlined,
+              obscure ? Icons.visibility_off_rounded : Icons.visibility_rounded,
               color: _grey,
               size: 20,
             ),
@@ -511,7 +515,7 @@ class _RegisterPageState extends State<RegisterPage> {
           ),
           child: Row(
             children: [
-              const Icon(Icons.error_outline, color: Color(0xFFD64545), size: 18),
+              const Icon(Icons.error_outline_rounded, color: Color(0xFFD64545), size: 18),
               const SizedBox(width: 8),
               Expanded(
                 child: Text(msg,

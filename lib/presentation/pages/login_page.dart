@@ -74,38 +74,35 @@ class _LoginPageState extends State<LoginPage> {
                   child: Column(
                     children: [
                       const SizedBox(height: 44),
-                      // Logo con anillo blanco elegante
+                      // Logo con anillo fino elegante
                       Container(
-                        width: 130,
-                        height: 130,
+                        width: 126,
+                        height: 126,
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          color: Colors.white.withValues(alpha: 0.35),
+                          gradient: const LinearGradient(
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                            colors: [Color(0xFFFFF0F8), Color(0xFFEE80C0), Color(0xFFD04898)],
+                            stops: [0.0, 0.55, 1.0],
+                          ),
+                          border: Border.all(
+                            color: Colors.white.withValues(alpha: 0.7),
+                            width: 2,
+                          ),
                           boxShadow: [
                             BoxShadow(
-                              color: const Color(0xFFD65391).withValues(alpha: 0.25),
-                              blurRadius: 30,
-                              spreadRadius: 2,
-                              offset: const Offset(0, 12),
+                              color: const Color(0xFFD65391).withValues(alpha: 0.3),
+                              blurRadius: 28,
+                              spreadRadius: 1,
+                              offset: const Offset(0, 10),
                             ),
                           ],
                         ),
-                        padding: const EdgeInsets.all(8),
-                        child: Container(
-                          decoration: const BoxDecoration(
-                            shape: BoxShape.circle,
-                            gradient: LinearGradient(
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
-                              colors: [Color(0xFFFFF0F8), Color(0xFFEE80C0), Color(0xFFD04898)],
-                              stops: [0.0, 0.55, 1.0],
-                            ),
-                          ),
-                          padding: const EdgeInsets.all(18),
-                          child: Image.asset(
-                            'assets/icons/logo_selenne.png',
-                            fit: BoxFit.contain,
-                          ),
+                        padding: const EdgeInsets.all(22),
+                        child: Image.asset(
+                          'assets/icons/logo_selenne.png',
+                          fit: BoxFit.contain,
                         ),
                       ),
                       const SizedBox(height: 16),
@@ -141,8 +138,8 @@ class _LoginPageState extends State<LoginPage> {
                               children: [
                                 Text(
                                   '¡Bienvenida!',
-                                  style: GoogleFonts.cormorantGaramond(
-                                    fontSize: 32,
+                                  style: GoogleFonts.playfairDisplay(
+                                    fontSize: 30,
                                     fontWeight: FontWeight.w700,
                                     color: _dark,
                                     letterSpacing: 0.5,
@@ -305,7 +302,7 @@ class _LoginPageState extends State<LoginPage> {
           prefixIcon: const Icon(Icons.lock_outline_rounded, color: _pink, size: 22),
           suffixIcon: IconButton(
             icon: Icon(
-              _obscurePassword ? Icons.visibility_off_outlined : Icons.visibility_outlined,
+              _obscurePassword ? Icons.visibility_off_rounded : Icons.visibility_rounded,
               color: _grey,
               size: 20,
             ),
@@ -409,7 +406,7 @@ class _LoginPageState extends State<LoginPage> {
           ),
           child: Row(
             children: [
-              const Icon(Icons.error_outline, color: Color(0xFFD64545), size: 18),
+              const Icon(Icons.error_outline_rounded, color: Color(0xFFD64545), size: 18),
               const SizedBox(width: 8),
               Expanded(
                 child: Text(msg,
