@@ -733,8 +733,21 @@ class _DetalleProductoModalState extends State<DetalleProductoModal> {
                 // Comprar ahora — abre checkout directo sin tocar el carrito
                 Expanded(
                   flex: 2,
-                  child: SizedBox(
+                  child: Container(
                     height: 46,
+                    decoration: BoxDecoration(
+                      gradient: canAdd
+                          ? const LinearGradient(
+                              colors: [
+                                Color(0xFF2D1B24),
+                                Color(0xFF7A3350),
+                                Color(0xFFD65391),
+                              ],
+                            )
+                          : null,
+                      color: canAdd ? null : const Color(0xFFDDDDDD),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
                     child: ElevatedButton(
                       onPressed: canAdd
                           ? () {
@@ -764,9 +777,10 @@ class _DetalleProductoModalState extends State<DetalleProductoModal> {
                             }
                           : null,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: _black,
+                        backgroundColor: Colors.transparent,
+                        shadowColor: Colors.transparent,
                         foregroundColor: Colors.white,
-                        disabledBackgroundColor: const Color(0xFFDDDDDD),
+                        disabledBackgroundColor: Colors.transparent,
                         elevation: 0,
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(10)),

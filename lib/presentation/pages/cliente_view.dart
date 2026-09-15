@@ -1920,9 +1920,19 @@ class _ClienteViewState extends State<ClienteView>
                                 ],
                               ),
                               const SizedBox(height: 16),
-                              SizedBox(
+                              Container(
                                 width: double.infinity,
                                 height: 54,
+                                decoration: BoxDecoration(
+                                  gradient: const LinearGradient(
+                                    colors: [
+                                      Color(0xFF2D1B24),
+                                      Color(0xFF7A3350),
+                                      Color(0xFFD65391),
+                                    ],
+                                  ),
+                                  borderRadius: BorderRadius.circular(16),
+                                ),
                                 child: ElevatedButton(
                                   onPressed: () {
                                     Navigator.of(modalContext).pop();
@@ -1930,7 +1940,8 @@ class _ClienteViewState extends State<ClienteView>
                                         const Duration(milliseconds: 200), showCheckoutModal);
                                   },
                                   style: ElevatedButton.styleFrom(
-                                    backgroundColor: const Color(0xFFd65391),
+                                    backgroundColor: Colors.transparent,
+                                    shadowColor: Colors.transparent,
                                     elevation: 0,
                                     shape: RoundedRectangleBorder(
                                         borderRadius: BorderRadius.circular(16)),
