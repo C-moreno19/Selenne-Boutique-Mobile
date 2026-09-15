@@ -15,10 +15,11 @@ class _PasswordChangedPageState extends State<PasswordChangedPage> {
   Timer? _timer;
 
   static const _pink = Color(0xFFD65391);
-  static const _darkPink = Color(0xFF9E3A6B);
-  static const _lightPink = Color(0xFFE8A0C0);
   static const _black = Color(0xFF1A1A1A);
   static const _grey = Color(0xFF666666);
+  static const _buttonGradient = LinearGradient(
+    colors: [Color(0xFFF590BC), Color(0xFFD64E8A)],
+  );
 
   @override
   void initState() {
@@ -60,9 +61,10 @@ class _PasswordChangedPageState extends State<PasswordChangedPage> {
           Container(
             decoration: const BoxDecoration(
               gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [_lightPink, _pink, _darkPink],
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [Color(0xFFF07AB8), Color(0xFFFAD4E8), Colors.white],
+                stops: [0.0, 0.42, 1.0],
               ),
             ),
           ),
@@ -180,12 +182,17 @@ class _PasswordChangedPageState extends State<PasswordChangedPage> {
                             textAlign: TextAlign.center,
                           ),
                           const SizedBox(height: 36),
-                          SizedBox(
+                          Container(
                             height: 50,
+                            decoration: BoxDecoration(
+                              gradient: _buttonGradient,
+                              borderRadius: BorderRadius.circular(10),
+                            ),
                             child: ElevatedButton(
                               onPressed: _navigateToLogin,
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: _black,
+                                backgroundColor: Colors.transparent,
+                                shadowColor: Colors.transparent,
                                 foregroundColor: Colors.white,
                                 shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(10)),
