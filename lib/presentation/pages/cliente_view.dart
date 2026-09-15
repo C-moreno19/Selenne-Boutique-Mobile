@@ -214,15 +214,15 @@ class _ClienteViewState extends State<ClienteView>
       decoration: InputDecoration(
         hintText: 'Buscar productos...',
         hintStyle: const TextStyle(color: AppColors.textLight, fontSize: 12),
-        prefixIcon:
-            const Icon(Icons.search, color: AppColors.textSecondary, size: 20),
+        prefixIcon: const Icon(Icons.search_rounded,
+            color: AppColors.textSecondary, size: 20),
         suffixIcon: _searchController.text.isNotEmpty
             ? GestureDetector(
                 onTap: () {
                   _searchController.clear();
                   context.read<TiendaProvider>().setBusqueda('');
                 },
-                child: const Icon(Icons.close,
+                child: const Icon(Icons.close_rounded,
                     color: AppColors.textSecondary, size: 20),
               )
             : null,
@@ -775,7 +775,7 @@ class _ClienteViewState extends State<ClienteView>
                               color: AppColors.primary.withValues(alpha: 0.08),
                               shape: BoxShape.circle,
                             ),
-                            child: const Icon(Icons.favorite_outline,
+                            child: const Icon(Icons.favorite_border_rounded,
                                 size: 44, color: AppColors.primary),
                           ),
                           const SizedBox(height: 20),
@@ -1109,21 +1109,21 @@ class _ClienteViewState extends State<ClienteView>
                           controller: _passActualCtrl,
                           obscureText: true,
                           decoration: _perfilInputDeco(
-                              'Contraseña Actual', Icons.lock_outlined),
+                              'Contraseña Actual', Icons.lock_outline_rounded),
                         ),
                         const SizedBox(height: 14),
                         TextField(
                           controller: _passNuevaCtrl,
                           obscureText: true,
                           decoration: _perfilInputDeco(
-                              'Nueva Contraseña', Icons.lock_outline),
+                              'Nueva Contraseña', Icons.lock_outline_rounded),
                         ),
                         const SizedBox(height: 14),
                         TextField(
                           controller: _passConfirmCtrl,
                           obscureText: true,
                           decoration: _perfilInputDeco(
-                              'Confirmar Contraseña', Icons.lock_outline),
+                              'Confirmar Contraseña', Icons.lock_outline_rounded),
                         ),
                         const SizedBox(height: 20),
                         Container(
