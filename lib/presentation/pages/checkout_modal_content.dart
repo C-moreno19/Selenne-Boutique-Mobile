@@ -17,6 +17,13 @@ const _pink = Color(0xFFD65391);
 const _black = Color(0xFF1A1A1A);
 const _grey = Color(0xFF666666);
 const _border = Color(0xFFE0E0E0);
+const _darkStart = Color(0xFF2D1B24);
+const _midMaroon = Color(0xFF7A3350);
+const _gradient = LinearGradient(
+  begin: Alignment.centerLeft,
+  end: Alignment.centerRight,
+  colors: [_darkStart, _midMaroon, _pink],
+);
 
 const List<String> _ciudadesColombia = [
   'Armenia', 'Barranquilla', 'Bogotá', 'Bucaramanga', 'Cali',
@@ -644,13 +651,19 @@ class _CheckoutModalContentState extends State<CheckoutModalContent> {
                   ),
                 ],
               ),
-              child: SizedBox(
+              child: Container(
                 height: 52,
+                decoration: BoxDecoration(
+                  gradient: _enviando ? null : _gradient,
+                  color: _enviando ? Colors.grey[400] : null,
+                  borderRadius: BorderRadius.circular(12),
+                ),
                 child: ElevatedButton(
                   onPressed: _enviando ? null : _confirmar,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: _black,
-                    disabledBackgroundColor: Colors.grey[400],
+                    backgroundColor: Colors.transparent,
+                    shadowColor: Colors.transparent,
+                    disabledBackgroundColor: Colors.transparent,
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12)),
                     elevation: 0,

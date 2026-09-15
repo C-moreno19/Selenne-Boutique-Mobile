@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../../core/themes/colors.dart';
 import '../providers/providers.dart';
@@ -16,6 +17,14 @@ class CheckoutPage extends StatefulWidget {
 }
 
 class _CheckoutPageState extends State<CheckoutPage> {
+  static const _darkStart = Color(0xFF2D1B24);
+  static const _midMaroon = Color(0xFF7A3350);
+  static const _gradient = LinearGradient(
+    begin: Alignment.centerLeft,
+    end: Alignment.centerRight,
+    colors: [_darkStart, _midMaroon, AppColors.primary],
+  );
+
   final _cardNumberController = TextEditingController();
   final _cardNameController = TextEditingController();
   final _expiryController = TextEditingController();
@@ -38,8 +47,13 @@ class _CheckoutPageState extends State<CheckoutPage> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        title: const Text('Checkout'),
+        title: Text('Checkout', style: GoogleFonts.playfairDisplay(fontWeight: FontWeight.bold)),
+        centerTitle: false,
         elevation: 0,
+        foregroundColor: Colors.white,
+        flexibleSpace: const DecoratedBox(
+          decoration: BoxDecoration(gradient: _gradient),
+        ),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
@@ -84,23 +98,34 @@ class _CheckoutPageState extends State<CheckoutPage> {
               ),
             const SizedBox(height: 24),
             // Botón Procesar
-            ElevatedButton(
-              onPressed: _isProcessing ? null : _procesarPago,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.primary,
-                padding: const EdgeInsets.symmetric(vertical: 14),
-                disabledBackgroundColor: AppColors.textLight,
+            Container(
+              height: 50,
+              decoration: BoxDecoration(
+                gradient: _isProcessing ? null : _gradient,
+                color: _isProcessing ? AppColors.textLight : null,
+                borderRadius: BorderRadius.circular(14),
               ),
-              child: _isProcessing
-                  ? const SizedBox(
-                      height: 20,
-                      width: 20,
-                      child: CircularProgressIndicator(
-                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                        strokeWidth: 2,
-                      ),
-                    )
-                  : const Text('Procesar Pago', style: TextStyle(fontSize: 16)),
+              child: ElevatedButton(
+                onPressed: _isProcessing ? null : _procesarPago,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.transparent,
+                  shadowColor: Colors.transparent,
+                  disabledBackgroundColor: Colors.transparent,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                  elevation: 0,
+                ),
+                child: _isProcessing
+                    ? const SizedBox(
+                        height: 20,
+                        width: 20,
+                        child: CircularProgressIndicator(
+                          valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                          strokeWidth: 2,
+                        ),
+                      )
+                    : const Text('Procesar Pago',
+                        style: TextStyle(fontSize: 16, color: Colors.white, fontWeight: FontWeight.w600)),
+              ),
             ),
             const SizedBox(height: 16),
             TextButton(
@@ -126,9 +151,18 @@ class _CheckoutPageState extends State<CheckoutPage> {
         }
         final total = subtotal + impuesto - descuento;
 
-        return Card(
-          elevation: 0,
-          color: AppColors.backgroundLight,
+        return Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.05),
+                blurRadius: 10,
+                offset: const Offset(0, 3),
+              ),
+            ],
+          ),
           child: Padding(
             padding: const EdgeInsets.all(16),
             child: Column(
@@ -201,9 +235,18 @@ class _CheckoutPageState extends State<CheckoutPage> {
         final usuario = authProvider.usuarioActual;
         if (usuario == null) return const SizedBox.shrink();
 
-        return Card(
-          elevation: 0,
-          color: AppColors.backgroundLight,
+        return Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.05),
+                blurRadius: 10,
+                offset: const Offset(0, 3),
+              ),
+            ],
+          ),
           child: Padding(
             padding: const EdgeInsets.all(16),
             child: Column(
