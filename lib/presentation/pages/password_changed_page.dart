@@ -18,7 +18,7 @@ class _PasswordChangedPageState extends State<PasswordChangedPage> {
   static const _black = Color(0xFF1A1A1A);
   static const _grey = Color(0xFF666666);
   static const _buttonGradient = LinearGradient(
-    colors: [Color(0xFFF590BC), Color(0xFFD64E8A)],
+    colors: [Color(0xFF2D1B24), Color(0xFF7A3350), Color(0xFFD65391)],
   );
 
   @override
@@ -63,7 +63,7 @@ class _PasswordChangedPageState extends State<PasswordChangedPage> {
               gradient: LinearGradient(
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
-                colors: [Color(0xFFF07AB8), Color(0xFFFAD4E8), Colors.white],
+                colors: [Color(0xFF2A2029), Color(0xFF6B3348), Colors.white],
                 stops: [0.0, 0.42, 1.0],
               ),
             ),

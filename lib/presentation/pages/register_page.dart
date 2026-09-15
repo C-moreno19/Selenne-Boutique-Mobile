@@ -49,14 +49,14 @@ class _RegisterPageState extends State<RegisterPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
-        // Fondo: rosa arriba → blanco abajo
+        // Fondo: degradado oscuro de marca arriba → blanco abajo
         decoration: const BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
             colors: [
-              Color(0xFFF07AB8),
-              Color(0xFFFAD4E8),
+              Color(0xFF2A2029),
+              Color(0xFF6B3348),
               Colors.white,
             ],
             stops: [0.0, 0.35, 1.0],
@@ -415,7 +415,11 @@ class _RegisterPageState extends State<RegisterPage> {
               gradient: _isLoading
                   ? null
                   : const LinearGradient(
-                      colors: [Color(0xFFF590BC), Color(0xFFD64E8A)],
+                      colors: [
+                        Color(0xFF2D1B24),
+                        Color(0xFF7A3350),
+                        Color(0xFFD65391),
+                      ],
                     ),
               color: _isLoading ? const Color(0xFFDDDDDD) : null,
               borderRadius: BorderRadius.circular(12),
