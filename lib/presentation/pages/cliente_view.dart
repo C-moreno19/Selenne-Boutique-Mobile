@@ -92,7 +92,15 @@ class _ClienteViewState extends State<ClienteView>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: _buildAppBar(),
-      body: _buildBody(),
+      body: AnimatedSwitcher(
+        duration: const Duration(milliseconds: 220),
+        switchInCurve: Curves.easeOut,
+        switchOutCurve: Curves.easeIn,
+        child: KeyedSubtree(
+          key: ValueKey(_vistaActual),
+          child: _buildBody(),
+        ),
+      ),
       floatingActionButton: null,
       bottomNavigationBar:
           Responsive.isMobile(context) ? _buildBottomNav() : null,
