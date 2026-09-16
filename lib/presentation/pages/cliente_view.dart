@@ -994,7 +994,7 @@ class _ClienteViewState extends State<ClienteView>
                           controller: _nombreCtrl,
                           textCapitalization: TextCapitalization.words,
                           decoration: _perfilInputDeco(
-                              'Nombre Completo', Icons.person_outline),
+                              'Nombre Completo', Icons.person_outline_rounded),
                         ),
                         const SizedBox(height: 14),
                         TextField(
@@ -1246,7 +1246,7 @@ class _ClienteViewState extends State<ClienteView>
                                       )),
                               const Divider(height: 1, indent: 60),
                               _cuentaOpcion(
-                                  Icons.help_outline,
+                                  Icons.help_outline_rounded,
                                   'Ayuda',
                                   'Escríbenos por WhatsApp',
                                   const Color(0xFF2E7D32),
