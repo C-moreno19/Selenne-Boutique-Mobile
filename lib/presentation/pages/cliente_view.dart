@@ -1052,17 +1052,8 @@ class _ClienteViewState extends State<ClienteView>
                             ),
                           ),
                         const SizedBox(height: 20),
-                        Container(
+                        SizedBox(
                           height: 50,
-                          decoration: BoxDecoration(
-                            gradient: _perfilGuardando
-                                ? null
-                                : const LinearGradient(
-                                    colors: [Color(0xFF2D1B24), Color(0xFF7A3350), AppColors.primary],
-                                  ),
-                            color: _perfilGuardando ? const Color(0xFFDDDDDD) : null,
-                            borderRadius: BorderRadius.circular(10),
-                          ),
                           child: ElevatedButton(
                             onPressed: _perfilGuardando
                                 ? null
@@ -1084,12 +1075,12 @@ class _ClienteViewState extends State<ClienteView>
                                         type: ok ? SnackType.success : SnackType.error);
                                   },
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.transparent,
-                              shadowColor: Colors.transparent,
+                              backgroundColor: const Color(0xFF1A1A1A),
+                              disabledBackgroundColor: const Color(0xFFDDDDDD),
                               foregroundColor: Colors.white,
                               disabledForegroundColor: const Color(0xFF999999),
-                              shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(10)),
+                              shape: const RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.zero),
                               elevation: 0,
                             ),
                             child: _perfilGuardando
@@ -1135,17 +1126,8 @@ class _ClienteViewState extends State<ClienteView>
                               'Confirmar Contraseña', Icons.lock_outline_rounded),
                         ),
                         const SizedBox(height: 20),
-                        Container(
+                        SizedBox(
                           height: 50,
-                          decoration: BoxDecoration(
-                            gradient: _passGuardando
-                                ? null
-                                : const LinearGradient(
-                                    colors: [Color(0xFF2D1B24), Color(0xFF7A3350), AppColors.primary],
-                                  ),
-                            color: _passGuardando ? const Color(0xFFDDDDDD) : null,
-                            borderRadius: BorderRadius.circular(10),
-                          ),
                           child: ElevatedButton(
                             onPressed: _passGuardando
                                 ? null
@@ -1177,12 +1159,12 @@ class _ClienteViewState extends State<ClienteView>
                                         type: ok ? SnackType.success : SnackType.error);
                                   },
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.transparent,
-                              shadowColor: Colors.transparent,
+                              backgroundColor: const Color(0xFF1A1A1A),
+                              disabledBackgroundColor: const Color(0xFFDDDDDD),
                               foregroundColor: Colors.white,
                               disabledForegroundColor: const Color(0xFF999999),
-                              shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(10)),
+                              shape: const RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.zero),
                               elevation: 0,
                             ),
                             child: _passGuardando
