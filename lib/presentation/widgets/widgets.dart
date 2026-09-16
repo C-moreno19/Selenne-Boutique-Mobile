@@ -162,7 +162,7 @@ class ProductCard extends StatelessWidget {
                             ],
                           ),
                           child: Icon(
-                            isFavorite ? Icons.favorite : Icons.favorite_border,
+                            isFavorite ? Icons.favorite_rounded : Icons.favorite_border_rounded,
                             color: isFavorite
                                 ? AppColors.primary
                                 : AppColors.textSecondary,
@@ -179,7 +179,6 @@ class ProductCard extends StatelessWidget {
                     padding: const EdgeInsets.all(12),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
                           producto.nombre,

@@ -609,7 +609,7 @@ class _ClienteViewState extends State<ClienteView>
                   crossAxisCount: columns,
                   crossAxisSpacing: 12,
                   mainAxisSpacing: 12,
-                  childAspectRatio: 0.55,
+                  childAspectRatio: 0.72,
                 ),
                 itemCount: productosEnPagina.length,
                 itemBuilder: (context, index) {
