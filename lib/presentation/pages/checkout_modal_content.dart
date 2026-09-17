@@ -293,6 +293,7 @@ class _CheckoutModalContentState extends State<CheckoutModalContent> {
           ),
           clipBehavior: Clip.hardEdge,
           child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             // Header
             Container(
@@ -644,6 +645,7 @@ class _CheckoutModalContentState extends State<CheckoutModalContent> {
             ),
             // Botón confirmar
             Container(
+              width: double.infinity,
               padding: EdgeInsets.fromLTRB(
                   20, 12, 20, MediaQuery.of(context).padding.bottom + 12),
               decoration: BoxDecoration(
