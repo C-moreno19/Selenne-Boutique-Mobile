@@ -5,8 +5,11 @@ import 'package:provider/provider.dart';
 import '../../core/models/models.dart';
 import '../../core/themes/colors.dart';
 import '../../core/utils/snackbar.dart';
+import '../../core/services/api_service.dart';
+import '../../core/services/valoraciones_service.dart';
 import '../pages/checkout_modal_content.dart';
 import '../providers/providers.dart';
+import '../providers/auth_provider.dart';
 
 /// Tarjeta de producto
 class ProductCard extends StatelessWidget {
@@ -276,6 +279,13 @@ class _DetalleProductoModalState extends State<DetalleProductoModal> {
   String? _color;
   int _cantidad = 1;
 
+  List<Valoracion>? _resenas;
+  bool _cargandoResenas = true;
+  bool _formResenaAbierto = false;
+  int _puntuacionNueva = 0;
+  final _comentarioController = TextEditingController();
+  bool _enviandoResena = false;
+
   String _cop(double v) =>
       '\$${v.toStringAsFixed(0).replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (m) => '${m[1]}.')}';
 
@@ -283,12 +293,52 @@ class _DetalleProductoModalState extends State<DetalleProductoModal> {
   void initState() {
     super.initState();
     _pageController = PageController();
+    _cargarResenas();
   }
 
   @override
   void dispose() {
     _pageController.dispose();
+    _comentarioController.dispose();
     super.dispose();
+  }
+
+  Future<void> _cargarResenas() async {
+    try {
+      final lista = await ValoracionesService.getPorProducto(widget.producto.id);
+      if (mounted) setState(() { _resenas = lista; _cargandoResenas = false; });
+    } catch (_) {
+      if (mounted) setState(() { _resenas = []; _cargandoResenas = false; });
+    }
+  }
+
+  Future<void> _enviarResena() async {
+    if (_puntuacionNueva < 1) {
+      AppSnackBar.show(context, 'Selecciona una calificación de 1 a 5 estrellas.', type: SnackType.error);
+      return;
+    }
+    setState(() => _enviandoResena = true);
+    try {
+      final productoId = int.tryParse(widget.producto.id) ?? 0;
+      await ValoracionesService.crear(
+        productoId: productoId,
+        puntuacion: _puntuacionNueva,
+        comentario: _comentarioController.text.trim().isEmpty ? null : _comentarioController.text.trim(),
+      );
+      if (!mounted) return;
+      AppSnackBar.show(context, '¡Gracias! Tu reseña se publicará cuando un administrador la apruebe.');
+      setState(() {
+        _formResenaAbierto = false;
+        _puntuacionNueva = 0;
+        _comentarioController.clear();
+      });
+    } on ApiException catch (e) {
+      if (mounted) AppSnackBar.show(context, e.message, type: SnackType.error);
+    } catch (_) {
+      if (mounted) AppSnackBar.show(context, 'No se pudo enviar tu reseña.', type: SnackType.error);
+    } finally {
+      if (mounted) setState(() => _enviandoResena = false);
+    }
   }
 
   @override
@@ -631,6 +681,11 @@ class _DetalleProductoModalState extends State<DetalleProductoModal> {
                     ],
                   ),
                   const SizedBox(height: 4),
+
+                  // ── Reseñas ──
+                  const Divider(color: Color(0xFFF0F0F0), height: 28),
+                  _seccionResenas(context),
+                  const SizedBox(height: 4),
                 ],
               ),
             ),
@@ -828,6 +883,197 @@ class _DetalleProductoModalState extends State<DetalleProductoModal> {
           child: Icon(icon, size: 16, color: _black),
         ),
       );
+
+  Widget _estrellas(double valor, {double size = 14, ValueChanged<int>? onTap}) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: List.generate(5, (i) {
+        final lleno = i < valor.round();
+        final icono = Icon(
+          Icons.star_rounded,
+          size: size,
+          color: lleno ? Colors.amber : const Color(0xFFDDDDDD),
+        );
+        if (onTap == null) return icono;
+        return GestureDetector(onTap: () => onTap(i + 1), child: icono);
+      }),
+    );
+  }
+
+  Widget _seccionResenas(BuildContext context) {
+    final isLoggedIn = context.watch<AuthProvider>().isLoggedIn;
+    final p = widget.producto;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text('Reseñas',
+                      style: TextStyle(
+                          fontSize: 13, fontWeight: FontWeight.w600, color: _black)),
+                  const SizedBox(height: 4),
+                  Row(
+                    children: [
+                      _estrellas(p.rating),
+                      const SizedBox(width: 6),
+                      Text(
+                        p.reviewCount > 0
+                            ? '${p.rating.toStringAsFixed(1)} (${p.reviewCount})'
+                            : 'Sin reseñas aún',
+                        style: const TextStyle(fontSize: 11, color: Color(0xFF888888)),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            if (isLoggedIn && !_formResenaAbierto)
+              TextButton.icon(
+                onPressed: () => setState(() => _formResenaAbierto = true),
+                icon: const Icon(Icons.rate_review_outlined, size: 15, color: _pink),
+                label: const Text('Escribir',
+                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: _pink)),
+                style: TextButton.styleFrom(padding: EdgeInsets.zero),
+              ),
+          ],
+        ),
+
+        if (_formResenaAbierto) ...[
+          const SizedBox(height: 10),
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              border: Border.all(color: const Color(0xFFEEEEEE)),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _estrellas(_puntuacionNueva.toDouble(), size: 24,
+                    onTap: (v) => setState(() => _puntuacionNueva = v)),
+                const SizedBox(height: 8),
+                TextField(
+                  controller: _comentarioController,
+                  maxLines: 3,
+                  style: const TextStyle(fontSize: 13),
+                  decoration: InputDecoration(
+                    hintText: 'Cuéntanos qué te pareció (opcional)',
+                    hintStyle: const TextStyle(fontSize: 12, color: Color(0xFFAAAAAA)),
+                    contentPadding: const EdgeInsets.all(10),
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide: const BorderSide(color: Color(0xFFDDDDDD))),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    TextButton(
+                      onPressed: _enviandoResena
+                          ? null
+                          : () => setState(() {
+                                _formResenaAbierto = false;
+                                _puntuacionNueva = 0;
+                                _comentarioController.clear();
+                              }),
+                      child: const Text('Cancelar',
+                          style: TextStyle(fontSize: 12, color: Color(0xFF888888))),
+                    ),
+                    const SizedBox(width: 6),
+                    ElevatedButton(
+                      onPressed: _enviandoResena ? null : _enviarResena,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: _black,
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8)),
+                      ),
+                      child: _enviandoResena
+                          ? const SizedBox(
+                              width: 14, height: 14,
+                              child: CircularProgressIndicator(
+                                  strokeWidth: 2, color: Colors.white))
+                          : const Text('Enviar',
+                              style: TextStyle(fontSize: 12, color: Colors.white)),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ],
+
+        const SizedBox(height: 10),
+        if (_cargandoResenas)
+          const Padding(
+            padding: EdgeInsets.symmetric(vertical: 8),
+            child: Center(
+                child: SizedBox(
+                    width: 18, height: 18,
+                    child: CircularProgressIndicator(strokeWidth: 2))),
+          )
+        else if ((_resenas ?? []).isEmpty)
+          const Text('Todavía no hay reseñas para este producto.',
+              style: TextStyle(fontSize: 12, color: Color(0xFF999999)))
+        else
+          ConstrainedBox(
+            constraints: const BoxConstraints(maxHeight: 220),
+            child: ListView.separated(
+              shrinkWrap: true,
+              physics: const ClampingScrollPhysics(),
+              itemCount: _resenas!.length,
+              separatorBuilder: (_, __) => const Divider(color: Color(0xFFF5F5F5)),
+              itemBuilder: (_, i) {
+                final r = _resenas![i];
+                return Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 6),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Text(r.nombreUsuario,
+                                style: const TextStyle(
+                                    fontSize: 12, fontWeight: FontWeight.w600, color: _black)),
+                          ),
+                          if (r.verificadoCompra)
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFE8F5E9),
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              child: const Text('Compra verificada',
+                                  style: TextStyle(
+                                      fontSize: 9, color: Color(0xFF2E7D32),
+                                      fontWeight: FontWeight.w600)),
+                            ),
+                        ],
+                      ),
+                      const SizedBox(height: 2),
+                      _estrellas(r.puntuacion.toDouble(), size: 12),
+                      if ((r.comentario ?? '').isNotEmpty) ...[
+                        const SizedBox(height: 4),
+                        Text(r.comentario!,
+                            style: const TextStyle(fontSize: 12, color: Color(0xFF666666), height: 1.4)),
+                      ],
+                    ],
+                  ),
+                );
+              },
+            ),
+          ),
+      ],
+    );
+  }
 }
 
 /// Bottom sheet de filtros con diseño de marca

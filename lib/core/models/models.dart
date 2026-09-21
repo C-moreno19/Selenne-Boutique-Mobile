@@ -198,3 +198,44 @@ class CartItem {
 
 /// Lista vacía — los productos se cargan desde el backend
 final List<Producto> productosOriginalData = [];
+
+/// Reseña de un producto (GET /api/valoraciones/producto/{id})
+class Valoracion {
+  final int id;
+  final int usuarioId;
+  final String nombreUsuario;
+  final int puntuacion;
+  final String? comentario;
+  final bool verificadoCompra;
+  final DateTime fechaCreacion;
+
+  Valoracion({
+    required this.id,
+    required this.usuarioId,
+    required this.nombreUsuario,
+    required this.puntuacion,
+    this.comentario,
+    required this.verificadoCompra,
+    required this.fechaCreacion,
+  });
+
+  static Valoracion fromJson(Map<String, dynamic> j) {
+    return Valoracion(
+      id: (j['valoracionID'] ?? j['ValoracionID'] ?? 0) is int
+          ? j['valoracionID'] ?? j['ValoracionID'] ?? 0
+          : int.tryParse((j['valoracionID'] ?? j['ValoracionID']).toString()) ?? 0,
+      usuarioId: (j['usuarioID'] ?? j['UsuarioID'] ?? 0) is int
+          ? j['usuarioID'] ?? j['UsuarioID'] ?? 0
+          : int.tryParse((j['usuarioID'] ?? j['UsuarioID']).toString()) ?? 0,
+      nombreUsuario: (j['nombreUsuario'] ?? j['NombreUsuario'] ?? 'Cliente').toString(),
+      puntuacion: (j['puntuacion'] ?? j['Puntuacion'] ?? 0) is int
+          ? j['puntuacion'] ?? j['Puntuacion'] ?? 0
+          : int.tryParse((j['puntuacion'] ?? j['Puntuacion']).toString()) ?? 0,
+      comentario: (j['comentario'] ?? j['Comentario'])?.toString(),
+      verificadoCompra: j['verificadoCompra'] ?? j['VerificadoCompra'] ?? false,
+      fechaCreacion: DateTime.tryParse(
+              (j['fechaCreacion'] ?? j['FechaCreacion'] ?? '').toString()) ??
+          DateTime.now(),
+    );
+  }
+}
