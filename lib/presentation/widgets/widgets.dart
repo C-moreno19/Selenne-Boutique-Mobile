@@ -847,6 +847,7 @@ class _FiltrosDrawerState extends State<FiltrosDrawer> {
 
   bool _tallasExpanded = true;
   bool _coloresExpanded = false;
+  bool _materialesExpanded = false;
   bool _tiposExpanded = false;
 
   @override
@@ -860,6 +861,7 @@ class _FiltrosDrawerState extends State<FiltrosDrawer> {
 
         final totalActivos = tiendaProvider.tallasSeleccionadas.length +
             tiendaProvider.coloresSeleccionados.length +
+            tiendaProvider.materialesSeleccionados.length +
             tiendaProvider.tiposSeleccionados.length;
 
         return Container(
@@ -1096,6 +1098,58 @@ class _FiltrosDrawerState extends State<FiltrosDrawer> {
                                 ),
                                 child: Text(
                                   color,
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w500,
+                                    color:
+                                        sel ? Colors.white : _black,
+                                  ),
+                                ),
+                              ),
+                            );
+                          }).toList(),
+                        ),
+                      ),
+                      const Divider(color: Color(0xFFF0F0F0)),
+
+                      // --- Materiales ---
+                      _seccionExpandible(
+                        titulo: 'Material',
+                        icono: Icons.texture_rounded,
+                        expandido: _materialesExpanded,
+                        onToggle: () => setState(
+                            () => _materialesExpanded = !_materialesExpanded),
+                        seleccionados:
+                            tiendaProvider.materialesSeleccionados.length,
+                        child: Wrap(
+                          spacing: 8,
+                          runSpacing: 8,
+                          children: tiendaProvider
+                              .getMaterialesDisponibles()
+                              .map((material) {
+                            final sel = tiendaProvider
+                                .materialesSeleccionados
+                                .contains(material);
+                            return GestureDetector(
+                              onTap: () => setState(
+                                  () => tiendaProvider.toggleMaterial(material)),
+                              child: AnimatedContainer(
+                                duration:
+                                    const Duration(milliseconds: 200),
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 12, vertical: 7),
+                                decoration: BoxDecoration(
+                                  color: sel ? _pink : Colors.white,
+                                  borderRadius:
+                                      BorderRadius.circular(20),
+                                  border: Border.all(
+                                    color: sel
+                                        ? _pink
+                                        : const Color(0xFFDDDDDD),
+                                  ),
+                                ),
+                                child: Text(
+                                  material,
                                   style: TextStyle(
                                     fontSize: 12,
                                     fontWeight: FontWeight.w500,
