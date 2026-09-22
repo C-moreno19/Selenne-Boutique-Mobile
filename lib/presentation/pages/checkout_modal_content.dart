@@ -65,10 +65,10 @@ class _CheckoutModalContentState extends State<CheckoutModalContent> {
   bool _validandoCupon = false;
 
   Map<String, String> _banco = {
-    'banco': 'Bancolombia',
-    'numeroCuenta': '91292106179',
-    'titular': 'Selenne Boutique',
-    'tipoCuenta': 'Ahorros',
+    'banco': 'Nequi',
+    'numeroCuenta': '0093334474',
+    'titular': 'Cristian Cordoba',
+    'tipoCuenta': 'Nequi',
   };
 
   // ── Direcciones guardadas ────────────────────────────────────────────────
@@ -180,10 +180,10 @@ class _CheckoutModalContentState extends State<CheckoutModalContent> {
         final d = data;
         setState(() {
           _banco = {
-            'banco': (d['banco'] ?? d['Banco'] ?? 'Bancolombia').toString(),
-            'numeroCuenta': (d['numeroCuenta'] ?? d['NumeroCuenta'] ?? '91292106179').toString(),
-            'titular': (d['titular'] ?? d['Titular'] ?? 'Selenne Boutique').toString(),
-            'tipoCuenta': (d['tipoCuenta'] ?? d['TipoCuenta'] ?? 'Ahorros').toString(),
+            'banco': (d['banco'] ?? d['Banco'] ?? 'Nequi').toString(),
+            'numeroCuenta': (d['numeroCuenta'] ?? d['NumeroCuenta'] ?? '0093334474').toString(),
+            'titular': (d['titular'] ?? d['Titular'] ?? 'Cristian Cordoba').toString(),
+            'tipoCuenta': (d['tipoCuenta'] ?? d['TipoCuenta'] ?? 'Nequi').toString(),
           };
         });
       }
