@@ -148,6 +148,7 @@ class OrderProvider extends ChangeNotifier {
     String? tipoCuenta,
     String? notas,
     String? comprobantePago,
+    String? cuponCodigo,
   }) async {
     _cargando = true;
     _error = null;
@@ -176,6 +177,7 @@ class OrderProvider extends ChangeNotifier {
         if (tipoCuenta != null) 'TipoCuenta': tipoCuenta,
         if (notas != null) 'Notas': notas,
         if (comprobantePago != null) 'ComprobantePago': comprobantePago,
+        if (cuponCodigo != null) 'CuponCodigo': cuponCodigo,
         'Items': itemsJson,
       };
 

@@ -9,6 +9,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../core/models/models.dart';
 import '../../core/services/api_service.dart';
+import '../../core/services/cupones_service.dart';
 import '../providers/providers.dart';
 import '../providers/auth_provider.dart';
 import '../providers/notification_provider.dart';
@@ -59,6 +60,9 @@ class _CheckoutModalContentState extends State<CheckoutModalContent> {
   String _metodoPago = 'contra_entrega';
   PlatformFile? _comprobante;
   bool _enviando = false;
+  late TextEditingController _cuponCtrl;
+  CuponValido? _cuponAplicado;
+  bool _validandoCupon = false;
 
   Map<String, String> _banco = {
     'banco': 'Bancolombia',
@@ -83,6 +87,7 @@ class _CheckoutModalContentState extends State<CheckoutModalContent> {
     _telefonoCtrl = TextEditingController(text: u?.telefono ?? '');
     _emailCtrl = TextEditingController(text: u?.email ?? '');
     _notasCtrl = TextEditingController();
+    _cuponCtrl = TextEditingController();
     if (u?.ciudad != null && _ciudadesColombia.contains(u!.ciudad)) {
       _ciudad = u.ciudad;
     }
@@ -164,6 +169,7 @@ class _CheckoutModalContentState extends State<CheckoutModalContent> {
     _telefonoCtrl.dispose();
     _emailCtrl.dispose();
     _notasCtrl.dispose();
+    _cuponCtrl.dispose();
     super.dispose();
   }
 
@@ -182,6 +188,34 @@ class _CheckoutModalContentState extends State<CheckoutModalContent> {
         });
       }
     } catch (_) {}
+  }
+
+  Future<void> _aplicarCupon(double subtotal) async {
+    final codigo = _cuponCtrl.text.trim();
+    if (codigo.isEmpty) {
+      _showSnack('Ingresa un código de cupón', error: true);
+      return;
+    }
+    setState(() => _validandoCupon = true);
+    try {
+      final cupon = await CuponesService.validar(codigo, subtotal);
+      if (!mounted) return;
+      setState(() => _cuponAplicado = cupon);
+      _showSnack('Cupón "${cupon.codigo}" aplicado', error: false);
+    } on ApiException catch (e) {
+      if (mounted) _showSnack(e.message, error: true);
+    } catch (_) {
+      if (mounted) _showSnack('No se pudo validar el cupón', error: true);
+    } finally {
+      if (mounted) setState(() => _validandoCupon = false);
+    }
+  }
+
+  void _quitarCupon() {
+    setState(() {
+      _cuponAplicado = null;
+      _cuponCtrl.clear();
+    });
   }
 
   String _formatCOP(double v) =>
@@ -251,6 +285,7 @@ class _CheckoutModalContentState extends State<CheckoutModalContent> {
         items: items,
         notas: notasBase.isEmpty ? null : notasBase,
         comprobantePago: comprobanteUrl,
+        cuponCodigo: _cuponAplicado?.codigo,
       );
 
       if (!mounted) return;
@@ -284,7 +319,9 @@ class _CheckoutModalContentState extends State<CheckoutModalContent> {
     return Consumer<CarritoProvider>(
       builder: (ctx, carrito, _) {
         final items = widget.itemsDirectos ?? carrito.items;
-        final total = items.fold<double>(0, (s, i) => s + i.subtotal);
+        final subtotal = items.fold<double>(0, (s, i) => s + i.subtotal);
+        final descuento = _cuponAplicado?.montoDescuento ?? 0;
+        final total = subtotal - descuento;
 
         return Container(
           decoration: const BoxDecoration(
@@ -396,6 +433,82 @@ class _CheckoutModalContentState extends State<CheckoutModalContent> {
                         ),
                       )),
                       const Divider(height: 20),
+
+                      // Cupón de descuento
+                      if (_cuponAplicado != null)
+                        Container(
+                          margin: const EdgeInsets.only(bottom: 12),
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                          decoration: BoxDecoration(
+                            color: Colors.green.withValues(alpha: 0.08),
+                            borderRadius: BorderRadius.circular(10),
+                            border: Border.all(color: Colors.green.withValues(alpha: 0.3)),
+                          ),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: Text('Cupón "${_cuponAplicado!.codigo}" aplicado',
+                                    style: const TextStyle(
+                                        color: Colors.green, fontWeight: FontWeight.w600, fontSize: 13)),
+                              ),
+                              GestureDetector(
+                                onTap: _quitarCupon,
+                                child: const Icon(Icons.close, color: Colors.green, size: 18),
+                              ),
+                            ],
+                          ),
+                        )
+                      else
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 12),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: TextField(
+                                  controller: _cuponCtrl,
+                                  textCapitalization: TextCapitalization.characters,
+                                  decoration: _inputDeco('Código de descuento', icon: Icons.local_offer_outlined),
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              SizedBox(
+                                height: 46,
+                                child: OutlinedButton(
+                                  onPressed: _validandoCupon ? null : () => _aplicarCupon(subtotal),
+                                  style: OutlinedButton.styleFrom(
+                                    side: const BorderSide(color: _pink),
+                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                                  ),
+                                  child: _validandoCupon
+                                      ? const SizedBox(
+                                          width: 16, height: 16,
+                                          child: CircularProgressIndicator(strokeWidth: 2, color: _pink))
+                                      : const Text('Aplicar', style: TextStyle(color: _pink)),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Text('Subtotal:', style: TextStyle(color: _grey)),
+                          Text(_formatCOP(subtotal), style: const TextStyle(color: _grey)),
+                        ],
+                      ),
+                      if (descuento > 0) ...[
+                        const SizedBox(height: 6),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            const Text('Descuento:', style: TextStyle(color: _grey)),
+                            Text('-${_formatCOP(descuento)}',
+                                style: const TextStyle(color: Colors.green, fontWeight: FontWeight.w600)),
+                          ],
+                        ),
+                      ],
+                      const SizedBox(height: 6),
                       const Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
